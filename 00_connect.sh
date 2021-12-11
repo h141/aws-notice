@@ -5,7 +5,7 @@ IFS=$'\n'
 # -------------------------------------
 # Connect
 # -------------------------------------
-$conconf_path="$HOME/_config_00_connect.sh"
+conconf_path="$HOME/_config_00_connect.sh"
 # ------------
 if [ -f "$conconf_path" ]; then
   . "$conconf_path"
