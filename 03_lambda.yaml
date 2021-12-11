@@ -1,0 +1,770 @@
+﻿AWSTemplateFormatVersion: 2010-09-09
+# -------------------------------------
+Mappings:
+  map:
+    lambda:
+      fnc01siem: shub-siem2securityhub-func
+      fnc02sns: shub-alert-sns-mail-func
+      fnc03board: shub-alert-board-issue-func
+      fnc04connect: shub-alert-connect-phone-func
+      fnc0301subdevops: shub-sub-azure-devops-board-func
+      fnc0401sfphone: shub-sf-connect-phone-func
+      fnc0402sfcheck: shub-sf-connect-check-func
+    sf:
+      sf01connect: shub-stepfunctions-connect-phone-sm
+# -------------------------------------
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      -
+        Parameters: 
+          - vS3bucketName
+          - vLayerZipPath
+          - vLayerName
+          - vAccountName
+          - vSSMSNSdefault
+          - vSSMADBdefault
+          - vSSMCPNdefault
+          - vDevOpsPAT
+          - vDevOpsORGANIZATION
+          - vSMFilePath
+          - vConnectInstanceId
+          - vConnectQueueId
+          - vConnectQueueName
+          - vConnectFlowId
+          - vConnectFlowName
+          - vConnectSourcePhoneNumber
+          # -------------------------------------
+Parameters:
+  vS3bucketName:
+    Type: String
+  vLayerZipPath:
+    Type: String
+  vLayerName:
+    Type: String
+    Default: az-devops-layer
+  vAccountName:
+    Type: String
+  vSSMSNSdefault:
+    Type: String
+  vSSMADBdefault:
+    Type: String
+  vSSMCPNdefault:
+    Type: String
+  vSMFilePath:
+    Type: String
+  vDevOpsPAT:
+    Type: String
+  vDevOpsORGANIZATION:
+    Type: String
+  vConnectInstanceId:
+    Type: String
+  vConnectQueueId:
+    Type: String
+  vConnectQueueName:
+    Type: String
+  vConnectFlowId:
+    Type: String
+  vConnectFlowName:
+    Type: String
+  vConnectSourcePhoneNumber:
+    Type: String
+# -------------------------------------
+Resources:
+  # ===========================================================================
+  # SSM Parameter Store
+  # ===========================================================================
+  SSMParameterSNSdefault:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: SNS_default
+      Type: String
+      Value: !Ref vSSMSNSdefault
+  SSMParameterADBdefault:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: ADB_default
+      Type: String
+      Value: !Ref vSSMADBdefault
+  SSMParameterCPNdefault:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: CPN_default
+      Type: String
+      Value: !Ref vSSMCPNdefault
+  # ===========================================================================
+  # Layer
+  # ===========================================================================
+  LayerAZdevops:
+    Type: "AWS::Lambda::LayerVersion"
+    Properties:
+      CompatibleRuntimes: 
+        - python3.9
+      Content: 
+        S3Bucket: !Ref vS3bucketName
+        S3Key: !Ref vLayerZipPath
+      Description: "-"
+      LayerName: !Ref vLayerName
+  # ===========================================================================
+  # CloudWatch Logs
+  # ===========================================================================
+  LogGroupfnc01siem:
+    Type: "AWS::Logs::LogGroup"
+    Properties: 
+      LogGroupName: !Join ["/",["/aws/lambda",!FindInMap [map,lambda,fnc01siem]]]
+      RetentionInDays: 365
+  LogGroupfnc02sns:
+    Type: "AWS::Logs::LogGroup"
+    Properties: 
+      LogGroupName: !Join ["/",["/aws/lambda",!FindInMap [map,lambda,fnc02sns]]]
+      RetentionInDays: 365
+  LogGroupfnc03board:
+    Type: "AWS::Logs::LogGroup"
+    Properties: 
+      LogGroupName: !Join ["/",["/aws/lambda",!FindInMap [map,lambda,fnc03board]]]
+      RetentionInDays: 365
+  LogGroupfnc04connect:
+    Type: "AWS::Logs::LogGroup"
+    Properties: 
+      LogGroupName: !Join ["/",["/aws/lambda",!FindInMap [map,lambda,fnc04connect]]]
+      RetentionInDays: 365
+  LogGroupfnc0301subdevops:
+    Type: "AWS::Logs::LogGroup"
+    Properties: 
+      LogGroupName: !Join ["/",["/aws/lambda",!FindInMap [map,lambda,fnc0301subdevops]]]
+      RetentionInDays: 365
+  LogGroupfnc0401sfphone:
+    Type: "AWS::Logs::LogGroup"
+    Properties: 
+      LogGroupName: !Join ["/",["/aws/lambda",!FindInMap [map,lambda,fnc0401sfphone]]]
+      RetentionInDays: 365
+  LogGroupfnc0402sfcheck:
+    Type: "AWS::Logs::LogGroup"
+    Properties: 
+      LogGroupName: !Join ["/",["/aws/lambda",!FindInMap [map,lambda,fnc0402sfcheck]]]
+      RetentionInDays: 365
+  # --
+  LogGroupsf01connect:
+    Type: "AWS::Logs::LogGroup"
+    Properties: 
+      LogGroupName: !Join ["/",["/aws/vendedlogs/states",!FindInMap [map,sf,sf01connect]]]
+      RetentionInDays: 365
+  # ===========================================================================
+  # Lambda
+  # ===========================================================================
+  Lambdafnc01siem:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !FindInMap [map,lambda,fnc01siem]
+      Tags: 
+        - Key: Name
+          Value: !FindInMap [map,lambda,fnc01siem]
+      Code:
+        S3Bucket: !Ref vS3bucketName
+        S3Key: !Join [ "", [ "code/", !FindInMap [map,lambda,fnc01siem] , ".zip" ] ]
+      Role: !ImportValue IAMRolesiem2securityhubArn
+      VpcConfig:
+        SubnetIds:
+          - !ImportValue Subnet01Private01aID
+          - !ImportValue Subnet01Private01cID
+        SecurityGroupIds:
+          - !ImportValue SGLambdaVPC1ID
+      PackageType: Zip
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Description: "-"
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          SNS_FNC: !Ref Lambdafnc02sns
+          SNS_SEVERITY: HIGH,CRITICAL
+          ADB_FNC: !Ref Lambdafnc03board
+          ADB_SEVERITY: HIGH,CRITICAL
+          CPN_FNC: !Ref Lambdafnc04connect
+          CPN_SEVERITY: CRITICAL
+  # --
+  Lambdafnc02sns:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !FindInMap [map,lambda,fnc02sns]
+      Tags: 
+        - Key: Name
+          Value: !FindInMap [map,lambda,fnc02sns]
+      Code:
+        S3Bucket: !Ref vS3bucketName
+        S3Key: !Join [ "", [ "code/", !FindInMap [map,lambda,fnc02sns] , ".zip" ] ]
+      Role: !ImportValue IAMRoleAlertSnsMailArn
+      VpcConfig:
+        SubnetIds:
+          - !ImportValue Subnet01Private01aID
+          - !ImportValue Subnet01Private01cID
+        SecurityGroupIds:
+          - !ImportValue SGLambdaVPC1ID
+      PackageType: Zip
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Description: "-"
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          ACCOUNTNAME: !Ref vAccountName
+  # --
+  Lambdafnc03board:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !FindInMap [map,lambda,fnc03board]
+      Tags: 
+        - Key: Name
+          Value: !FindInMap [map,lambda,fnc03board]
+      Code:
+        S3Bucket: !Ref vS3bucketName
+        S3Key: !Join [ "", [ "code/", !FindInMap [map,lambda,fnc03board] , ".zip" ] ]
+      Role: !ImportValue IAMRoleAlertBoardIssueArn
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SGLambdaVPC1ID
+        SubnetIds:
+          - !ImportValue Subnet01Private01aID
+          - !ImportValue Subnet01Private01cID
+      PackageType: Zip
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Description: "-"
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          ACCOUNTNAME: !Ref vAccountName
+          ADB_SUB_FNC: !Ref Lambdafnc0301subdevops
+  # --
+  Lambdafnc04connect:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !FindInMap [map,lambda,fnc04connect]
+      Tags: 
+        - Key: Name
+          Value: !FindInMap [map,lambda,fnc04connect]
+      Code:
+        S3Bucket: !Ref vS3bucketName
+        S3Key: !Join [ "", [ "code/", !FindInMap [map,lambda,fnc04connect] , ".zip" ] ]
+      Role: !ImportValue IAMRoleAlertConnectPhoneArn
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SGLambdaVPC1ID
+        SubnetIds:
+          - !ImportValue Subnet01Private01aID
+          - !ImportValue Subnet01Private01cID
+      PackageType: Zip
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Description: "-"
+      MemorySize: 128
+      Timeout: 30
+      Environment:
+        Variables:
+          STATEMACHINE: !GetAtt StateMachinesf01connect.Name
+          CALLTIMES: 3
+          MESSAGE: "AWS障害です"
+  # --
+  Lambdafnc0301subdevops:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !FindInMap [map,lambda,fnc0301subdevops]
+      Tags: 
+        - Key: Name
+          Value: !FindInMap [map,lambda,fnc0301subdevops]
+      Code:
+        S3Bucket: !Ref vS3bucketName
+        S3Key: !Join [ "", [ "code/", !FindInMap [map,lambda,fnc0301subdevops] , ".zip" ] ]
+      Role: !ImportValue IAMRoleSubAzureDevopsBoardArn
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SGLambdaVPC2AzuredevopsboardID
+        SubnetIds:
+          - !ImportValue Subnet02Private01aID
+          - !ImportValue Subnet02Private01cID
+      PackageType: Zip
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Description: "-"
+      MemorySize: 128
+      Timeout: 90
+      Environment:
+        Variables:
+          PAT: !Ref vDevOpsPAT
+          ORGANIZATION: !Ref vDevOpsORGANIZATION
+          AZURE_DEVOPS_CACHE_DIR: "/tmp"
+      Layers:
+        - !Ref LayerAZdevops
+  # --
+  Lambdafnc0401sfphone:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !FindInMap [map,lambda,fnc0401sfphone]
+      Tags: 
+        - Key: Name
+          Value: !FindInMap [map,lambda,fnc0401sfphone]
+      Code:
+        S3Bucket: !Ref vS3bucketName
+        S3Key: !Join [ "", [ "code/", !FindInMap [map,lambda,fnc0401sfphone] , ".zip" ] ]
+      Role: !ImportValue IAMRoleSFConnectPhoneArn
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SGLambdaVPC2awsconnectID
+        SubnetIds:
+          - !ImportValue Subnet02Private02aID
+          - !ImportValue Subnet02Private02cID
+      PackageType: Zip
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Description: "-"
+      MemorySize: 128
+      Timeout: 90
+      Environment:
+        Variables:
+          INSTANCEID: !Ref vConnectInstanceId
+          QUEUEID: !Ref vConnectQueueId
+          CONTACTFLOWID: !Ref vConnectFlowId
+          SOURCEPHONENUMBER: !Ref vConnectSourcePhoneNumber
+  # --
+  Lambdafnc0402sfcheck:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      FunctionName: !FindInMap [map,lambda,fnc0402sfcheck]
+      Tags: 
+        - Key: Name
+          Value: !FindInMap [map,lambda,fnc0402sfcheck]
+      Code:
+        S3Bucket: !Ref vS3bucketName
+        S3Key: !Join [ "", [ "code/", !FindInMap [map,lambda,fnc0402sfcheck] , ".zip" ] ]
+      Role: !ImportValue IAMRoleSFConnectCheckArn
+      VpcConfig:
+        SecurityGroupIds:
+          - !ImportValue SGLambdaVPC2awsconnectID
+        SubnetIds:
+          - !ImportValue Subnet02Private02aID
+          - !ImportValue Subnet02Private02cID
+      PackageType: Zip
+      Runtime: python3.9
+      Handler: lambda_function.lambda_handler
+      Description: "-"
+      MemorySize: 128
+      Timeout: 90
+  # ===========================================================================
+  # StepFunctions
+  # ===========================================================================
+  StateMachinesf01connect:
+    Type: "AWS::StepFunctions::StateMachine"
+    Properties:
+      StateMachineName: !FindInMap [map,sf,sf01connect]
+      StateMachineType: STANDARD
+      RoleArn: !ImportValue IAMRoleStepfunctionsConnectPhoneArn
+      DefinitionS3Location:
+        Bucket: !Ref vS3bucketName
+        Key: !Ref vSMFilePath
+      DefinitionSubstitutions:
+        lambdaphoneArn: !GetAtt Lambdafnc0401sfphone.Arn
+        lambdacheckArn: !GetAtt Lambdafnc0402sfcheck.Arn
+  # ===========================================================================
+  # SNS Topic
+  # ===========================================================================
+  SNSInfraAlert:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: infra-alert-snstopic
+  # ===========================================================================
+  # CloudWatch Alarm
+  # ===========================================================================
+  CWAlarmfnc01siemErrors:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !Ref Lambdafnc01siem , "errors" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref Lambdafnc01siem
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmfnc02snsErrors:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !Ref Lambdafnc02sns , "errors" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref Lambdafnc02sns
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmfnc03boardErrors:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !Ref Lambdafnc03board , "errors" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref Lambdafnc03board
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmfnc04connectErrors:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !Ref Lambdafnc04connect , "errors" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref Lambdafnc04connect
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmfnc0301subdevopsErrors:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !Ref Lambdafnc0301subdevops , "errors" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref Lambdafnc0301subdevops
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmfnc0401sfphoneErrors:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !Ref Lambdafnc0401sfphone , "errors" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref Lambdafnc0401sfphone
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmfnc0402sfcheckErrors:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !Ref Lambdafnc0402sfcheck , "errors" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref Lambdafnc0402sfcheck
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  # ---------------------------------------------------------- StepFunctions --
+  CWAlarmsf01connectFail:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !GetAtt StateMachinesf01connect.Name, "fail" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/States
+      MetricName: ExecutionsFailed
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !Ref StateMachinesf01connect
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmsf01connectAbort:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !GetAtt StateMachinesf01connect.Name, "abort" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/States
+      MetricName: ExecutionsAborted
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !Ref StateMachinesf01connect
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmsf01connectTimeout:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: !Join [ "-", [ "cwalarm-for", !GetAtt StateMachinesf01connect.Name, "timeout" ] ]
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/States
+      MetricName: ExecutionsTimedOut
+      Dimensions:
+        - Name: StateMachineArn
+          Value: !Ref StateMachinesf01connect
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  # ---------------------------------------------------------------- Connect --
+  CWAlarmConnectFlowErrors:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: "cwalarm-for-shub-connect-contactflowerror"
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Connect
+      MetricName: ContactFlowErrors
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref vConnectInstanceId
+        - Name: MetricGroup
+          Value: ContactFlow
+        - Name: ContactFlowName
+          Value: !Ref vConnectFlowName
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmConnectFlowFatal:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: "cwalarm-for-shub-connect-contactflowfatal"
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Connect
+      MetricName: ContactFlowFatalErrors
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref vConnectInstanceId
+        - Name: MetricGroup
+          Value: ContactFlow
+        - Name: ContactFlowName
+          Value: !Ref vConnectFlowName
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmConnectMisconfig:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: "cwalarm-for-shub-connect-misconfigphone"
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Connect
+      MetricName: MisconfiguredPhoneNumbers
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref vConnectInstanceId
+        - Name: MetricGroup
+          Value: VoiceCalls
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmConnectThrottledCalls:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: "cwalarm-for-shub-connect-throttledcalls"
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Connect
+      MetricName: ThrottledCalls
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref vConnectInstanceId
+        - Name: MetricGroup
+          Value: VoiceCalls
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  CWAlarmConnectQueueCapExceed:
+    Type: "AWS::CloudWatch::Alarm"
+    Properties:
+      AlarmName: "cwalarm-for-shub-connect-queuecapexceed"
+      AlarmDescription: "-"
+      ActionsEnabled: true
+      Namespace: AWS/Connect
+      MetricName: QueueCapacityExceededError
+      Dimensions:
+        - Name: InstanceId
+          Value: !Ref vConnectInstanceId
+        - Name: MetricGroup
+          Value: Queue
+        - Name: QueueName
+          Value: !Ref vConnectQueueName
+      Statistic: Maximum
+      Period: 300
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 1
+      DatapointsToAlarm: 1
+      EvaluationPeriods: 1
+      TreatMissingData: notBreaching
+      AlarmActions:
+        - !Ref SNSInfraAlert
+  # -------------------------------------- ClodWatch Event/ EventBridge Rule --
+  EventRuleLambdafnc02sns:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Name : "eventrule-shub-sns-mail"
+      Description: "Security Hub Notification to Lambda"
+      EventPattern:
+        source:
+          - "aws.securityhub"
+        detail-type:
+          - "Security Hub Findings - Imported"
+        detail:
+          findings:
+            RecordState:
+              - "ACTIVE"
+            Workflow:
+              Status:
+                - "NEW"
+            Severity:
+              Label:
+                - "CRITICAL"
+                - "HIGH"
+      Targets:
+        - Arn: !GetAtt Lambdafnc02sns.Arn
+          Id: "Id2021120808510"
+  EventRuleLambdafnc03board:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Name : "eventrule-shub-board-issue"
+      Description: ""
+      EventPattern:
+        source:
+          - "aws.securityhub"
+        detail-type:
+          - "Security Hub Findings - Imported"
+        detail:
+          findings:
+            RecordState:
+              - "ACTIVE"
+            Workflow:
+              Status:
+                - "NEW"
+            Severity:
+              Label:
+                - "CRITICAL"
+                - "HIGH"
+      Targets:
+        - Arn: !GetAtt Lambdafnc03board.Arn
+          Id: "Id2021120808510"
+  EventRuleLambdafnc04connect:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Name : "eventrule-shub-connect-phone"
+      Description: ""
+      EventPattern:
+        source:
+          - "aws.securityhub"
+        detail-type:
+          - "Security Hub Findings - Imported"
+        detail:
+          findings:
+            RecordState:
+              - "ACTIVE"
+            Workflow:
+              Status:
+                - "NEW"
+            Severity:
+              Label:
+                - "CRITICAL"
+      Targets:
+        - Arn: !GetAtt Lambdafnc04connect.Arn
+          Id: "Id2021120808510"
+

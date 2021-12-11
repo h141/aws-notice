@@ -1,0 +1,48 @@
+StartAt: "Choice check calltimes"
+TimeoutSeconds: 1200
+States:
+  "Choice check calltimes":
+    Type: "Choice"
+    Choices:
+      -
+        Variable: "$.calltimes"
+        NumericGreaterThan: 0
+        Next: "Lambda shub-sf-connect-phone-func"
+    Default: Success
+  "Lambda shub-sf-connect-phone-func":
+    Type: "Task"
+    Resource: "arn:aws:states:::lambda:invoke"
+    Parameters:
+      "FunctionName": "${lambdaphoneArn}"
+      "Payload.$": "$"
+    Next: "Wait"
+    Catch:
+      -
+        "ErrorEquals":
+          - "States.ALL"
+        Next: "Fail"
+  "Fail":
+    Type: "Fail"
+  "Wait":
+    Type: "Wait"
+    Next: "Lambda shub-sf-connect-check-func"
+    SecondsPath: "$.Payload.waitseconds"
+    OutputPath: "$.Payload"
+  "Lambda shub-sf-connect-check-func":
+    Type: "Task"
+    Resource: "arn:aws:states:::lambda:invoke"
+    Parameters:
+      "Payload.$": "$"
+      "FunctionName": "${lambdacheckArn}"
+    Next: "Pass Payload Filter"
+    Catch:
+      -
+        ErrorEquals:
+          - States.ALL
+        Next: Fail
+  "Pass Payload Filter":
+    Type: "Pass"
+    Next: "Choice check calltimes"
+    OutputPath: "$.Payload"
+  "Success":
+    Type: "Succeed"

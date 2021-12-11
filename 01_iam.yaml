@@ -1,0 +1,433 @@
+AWSTemplateFormatVersion: 2010-09-09
+# -------------------------------------
+#Metadata: 
+#  AWS::CloudFormation::Interface: 
+#    ParameterGroups: 
+#      - 
+#        Parameters: 
+# -------------------------------------
+# Parameters:
+# -------------------------------------
+Resources:
+  # ===========================================================================
+  # IAM Policy
+  # ===========================================================================
+  IAMPolicyLambdaVpc:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-base-lambda-vpc-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:CreateLogGroup
+            Resource:
+              - !Sub "arn:aws:logs:*:${AWS::AccountId}:log-group:*"
+          -
+            Sid: VisualEditor1
+            Effect: Allow
+            Action: logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:*:${AWS::AccountId}:log-group:*:log-stream:*"
+          -
+            Sid: VisualEditor2
+            Effect: Allow
+            Action: ec2:DescribeNetworkInterfaces
+            Resource: '*'
+          -
+            Sid: VisualEditor3
+            Effect: Allow
+            Action:
+              - ec2:CreateNetworkInterface
+              - ec2:DeleteNetworkInterface
+              - ec2:UnassignPrivateIpAddresses
+              - ec2:AssignPrivateIpAddresses
+            Resource:
+              - !Sub "arn:aws:ec2:*:${AWS::AccountId}:*"
+  # --
+  IAMPolicyLambdaNat:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-base-lambda-nat-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:CreateLogGroup
+            Resource:
+              - !Sub "arn:aws:logs:*:${AWS::AccountId}:log-group:*"
+          -
+            Sid: VisualEditor1
+            Effect: Allow
+            Action: logs:PutLogEvents
+            Resource:
+              - !Sub "arn:aws:logs:*:${AWS::AccountId}:log-group:*:log-stream:*"
+          -
+            Sid: VisualEditor2
+            Effect: Allow
+            Action: ec2:DescribeNetworkInterfaces
+            Resource: '*'
+          -
+            Sid: VisualEditor3
+            Effect: Allow
+            Action:
+              - ec2:CreateNetworkInterface
+              - ec2:DeleteNetworkInterface
+              - ec2:UnassignPrivateIpAddresses
+              - ec2:AssignPrivateIpAddresses
+            Resource:
+              - !Sub "arn:aws:ec2:*:${AWS::AccountId}:*"
+  # --
+  IAMPolicyLambdaSSM:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-base-lambda-ssm-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - ssm:DescribeParameters
+            Resource: '*'
+          -
+            Sid: VisualEditor1
+            Effect: Allow
+            Action:
+              - ssm:GetParameter
+              - ssm:GetParameters
+              - ssm:GetParameterHistory
+              - ssm:GetParametersByPath
+            Resource:
+              - !Sub "arn:aws:ssm:*:${AWS::AccountId}:parameter/*"
+  # ----------------------------------------------
+  IAMPolicyLambdaSiem2SH:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-siem2securityhub-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource:
+              - !Sub "arn:aws:lambda:*:${AWS::AccountId}:function:shub-alert-*"
+  # --
+  IAMPolicyLambdaSnsMail:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-alert-sns-mail-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - sns:Publish
+            Resource:
+              - !Sub "arn:aws:sns:*:${AWS::AccountId}:*"
+  # --
+  IAMPolicyLambdaBoardIssue:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-alert-board-issue-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource:
+              - !Sub "arn:aws:lambda:*:${AWS::AccountId}:function:shub-sub-*"
+  # --
+  # - NO shub-sub-azure-devops-board-policy
+  # --
+  IAMPolicyLambdaConnectPhone:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-alert-connect-phone-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - states:StartExecution
+            Resource:
+              - !Sub "arn:aws:states:*:${AWS::AccountId}:stateMachine:shub-*"
+  # --
+  IAMPolicyStepfunctionsConnectPhone:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-stepfunctions-connect-phone-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - lambda:InvokeFunction
+            Resource:
+              - !Sub "arn:aws:lambda:*:${AWS::AccountId}:function:shub-sf-connect-phone-func:*"
+              - !Sub "arn:aws:lambda:*:${AWS::AccountId}:function:shub-sf-connect-check-func:*"
+              - !Sub "arn:aws:lambda:*:${AWS::AccountId}:function:shub-sf-connect-phone-func"
+              - !Sub "arn:aws:lambda:*:${AWS::AccountId}:function:shub-sf-connect-check-func"
+          -
+            Sid: VisualEditor1
+            Effect: Allow
+            Action:
+              - logs:CreateLogDelivery
+              - logs:GetLogDelivery
+              - logs:UpdateLogDelivery
+              - logs:DeleteLogDelivery
+              - logs:ListLogDeliveries
+              - logs:PutResourcePolicy
+              - logs:DescribeResourcePolicies
+              - logs:DescribeLogGroups
+            Resource: '*'
+  # --
+  IAMPolicyLambdaSFConnectPhone:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-sf-connect-phone-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - connect:StartOutboundVoiceContact
+            Resource:
+              - !Sub "arn:aws:connect:*:${AWS::AccountId}:instance/*/contact/*"
+  # --
+  IAMPolicyLambdaSFConnectCheck:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: "shub-sf-connect-check-policy"
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Sid: VisualEditor0
+            Effect: Allow
+            Action:
+              - connect:GetContactAttributes
+            Resource:
+              - !Sub "arn:aws:connect:*:${AWS::AccountId}:instance/*/contact/*"
+  # ===========================================================================
+  # IAM Role
+  # ===========================================================================
+  IAMRolesiem2securityhub:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: "shub-siem2securityhub-role"
+      Tags:
+        - Key: Name
+          Value: "shub-siem2securityhub-role"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns: 
+        - !Ref IAMPolicyLambdaSiem2SH
+        - !Ref IAMPolicyLambdaVpc
+  # --
+  IAMRoleAlertSnsMail:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: "shub-alert-sns-mail-role"
+      Tags:
+        - Key: Name
+          Value: "shub-alert-sns-mail-role"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns: 
+        - !Ref IAMPolicyLambdaSnsMail
+        - !Ref IAMPolicyLambdaVpc
+        - !Ref IAMPolicyLambdaSSM
+  # --
+  IAMRoleAlertBoardIssue:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: "shub-alert-board-issue-role"
+      Tags:
+        - Key: Name
+          Value: "shub-alert-board-issue-role"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns: 
+        - !Ref IAMPolicyLambdaBoardIssue
+        - !Ref IAMPolicyLambdaVpc
+        - !Ref IAMPolicyLambdaSSM
+  # --
+  IAMRoleSubAzureDevopsBoard:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: "shub-sub-azure-devops-board-role"
+      Tags:
+        - Key: Name
+          Value: "shub-sub-azure-devops-board-role"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns: 
+        - !Ref IAMPolicyLambdaNat
+  # --
+  IAMRoleAlertConnectPhone:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: "shub-alert-connect-phone-role"
+      Tags:
+        - Key: Name
+          Value: "shub-alert-connect-phone-role"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns: 
+        - !Ref IAMPolicyLambdaConnectPhone
+        - !Ref IAMPolicyLambdaVpc
+        - !Ref IAMPolicyLambdaSSM
+  # --
+  IAMRoleStepfunctionsConnectPhone:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: "shub-stepfunctions-connect-phone-role"
+      Tags:
+        - Key: Name
+          Value: "shub-stepfunctions-connect-phone-role"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: states.amazonaws.com
+      ManagedPolicyArns: 
+        - !Ref IAMPolicyStepfunctionsConnectPhone
+  # --
+  IAMRoleSFConnectPhone:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: "shub-sf-connect-phone-role"
+      Tags:
+        - Key: Name
+          Value: "shub-sf-connect-phone-role"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns: 
+        - !Ref IAMPolicyLambdaSFConnectPhone
+        - !Ref IAMPolicyLambdaNat
+  # --
+  IAMRoleSFConnectCheck:
+    Type: AWS::IAM::Role
+    Properties: 
+      RoleName: "shub-sf-connect-check-role"
+      Tags:
+        - Key: Name
+          Value: "shub-sf-connect-check-role"
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          -
+            Effect: Allow
+            Action: "sts:AssumeRole"
+            Principal:
+              Service: lambda.amazonaws.com
+      ManagedPolicyArns: 
+        - !Ref IAMPolicyLambdaSFConnectCheck
+        - !Ref IAMPolicyLambdaNat
+# ------------------------------------------------------------#
+# Output Parameters
+# ------------------------------------------------------------#                
+Outputs:
+  IAMRolesiem2securityhubArn:
+    Value: !GetAtt IAMRolesiem2securityhub.Arn
+    Export:
+      Name: IAMRolesiem2securityhubArn
+  IAMRoleAlertSnsMailArn:
+    Value: !GetAtt IAMRoleAlertSnsMail.Arn
+    Export:
+      Name: IAMRoleAlertSnsMailArn
+  IAMRoleAlertBoardIssueArn:
+    Value: !GetAtt IAMRoleAlertBoardIssue.Arn
+    Export:
+      Name: IAMRoleAlertBoardIssueArn
+  IAMRoleSubAzureDevopsBoardArn:
+    Value: !GetAtt IAMRoleSubAzureDevopsBoard.Arn
+    Export:
+      Name: IAMRoleSubAzureDevopsBoardArn
+  IAMRoleAlertConnectPhoneArn:
+    Value: !GetAtt IAMRoleAlertConnectPhone.Arn
+    Export:
+      Name: IAMRoleAlertConnectPhoneArn
+  IAMRoleStepfunctionsConnectPhoneArn:
+    Value: !GetAtt IAMRoleStepfunctionsConnectPhone.Arn
+    Export:
+      Name: IAMRoleStepfunctionsConnectPhoneArn
+  IAMRoleSFConnectPhoneArn:
+    Value: !GetAtt IAMRoleSFConnectPhone.Arn
+    Export:
+      Name: IAMRoleSFConnectPhoneArn
+  IAMRoleSFConnectCheckArn:
+    Value: !GetAtt IAMRoleSFConnectCheck.Arn
+    Export:
+      Name: IAMRoleSFConnectCheckArn
