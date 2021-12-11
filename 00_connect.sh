@@ -141,7 +141,7 @@ if [ ! -f "$conconf_path" ]; then
   export flowid=${flowid}
   export flowname=${flow}
   # --
-cat - << EOS > "$conconf_path"
+cat << EOS > ${conconf_path}
 export instanceid=\"${instanceid}\"
 export queueid=\"${queueid}\"
 export queuename=\"${queue}\"
