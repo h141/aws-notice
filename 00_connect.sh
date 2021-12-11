@@ -5,6 +5,11 @@ IFS=$'\n'
 # -------------------------------------
 # Connect
 # -------------------------------------
+$conconf_path="$HOME/_config_00_connect.sh"
+# ------------
+if [ -f "$conconf_path" ]; then
+  . "$conconf_path"
+fi
 # ----------------- instance
 if [ -z "${instanceid+UNDEF}" ]; then
   set -eu
@@ -44,7 +49,7 @@ if [ -z "${instanceid+UNDEF}" ]; then
 fi
 echo instanceid $instanceid
 # ----------------- queue
-if [ -z "${queueid+UNDEF}" ]; then
+if [ -z "${queueid+UNDEF}" -o -z "${queuename+UNDEF}"  ]; then
   set -eu
   echo 
   queues=$(aws connect list-queues --instance-id ${instanceid} | jq '.QueueSummaryList[].Name')
@@ -58,6 +63,7 @@ if [ -z "${queueid+UNDEF}" ]; then
   do break ; done 
   queueid=$(aws connect list-queues --instance-id ${instanceid} | jq -r \
     '.QueueSummaryList[]|select ( .Name == '${queue}' ).Id')
+  queue=$(echo ${queue}| tr -d \")
   { set +eu; } 2>/dev/null
 fi
 echo queueid $queueid
@@ -75,10 +81,10 @@ if [ -z "${phonenumber+UNDEF}" ]; then
   { set +eu; } 2>/dev/null
 fi
 if [ ! -z "${phonenumber+UNDEF}" ]; then
-    echo phonenumber $phonenumber
+  echo phonenumber $phonenumber
 fi
 # ----------------- flow 
-if [ -z "${flowid+UNDEF}" ]; then
+if [ -z "${flowid+UNDEF}" -o -z "${flowname+UNDEF}" ]; then
   set -eu
   echo 
   flows=$(aws connect list-contact-flows --instance-id ${instanceid} \
@@ -117,29 +123,32 @@ if [ -z "${flowid+UNDEF}" ]; then
   fi
   flowid=$(aws connect list-contact-flows --instance-id ${instanceid} | jq -r \
     '.ContactFlowSummaryList[]|select ( .Name == '${flow}' ).Id')
+  flow=$(echo ${flow}| tr -d \")
   { set +eu; } 2>/dev/null
 fi
 echo flowid $flowid
 echo flowname $flow
 # -------------------------------------
-echo 
-echo export instanceid=${instanceid}
-export instanceid=${instanceid}
-echo export queueid=${queueid}
-export queueid=${queueid}
-queue=$(echo ${queue}| tr -d \")
-echo export queuename=${queue}
-export queuename=${queue}
-if [ ! -z "${phonenumber+UNDEF}" ]; then
-  echo export phonenumber=${phonenumber}
-  export phonenumber=${phonenumber}
-else
-  export phonenumber=""
-  echo "# undef phonenumber"
+if [ ! -f "$conconf_path" ]; then
+  export instanceid=${instanceid}
+  export queueid=${queueid}
+  export queuename=${queue}
+  if [ ! -z "${phonenumber+UNDEF}" ]; then
+    export phonenumber=${phonenumber}
+  else
+    export phonenumber=""
+  fi
+  export flowid=${flowid}
+  export flowname=${flow}
+  # --
+cat - << EOS > "$conconf_path"
+export instanceid=\"${instanceid}\"
+export queueid=\"${queueid}\"
+export queuename=\"${queue}\"
+export phonenumber=\"${phonenumber}\"
+export flowid=\"${flowid}\"
+export flowname=\"${flow}\"
+EOS
 fi
-echo flowid=${flowid}
-export flowid=${flowid}
-flow=$(echo ${flow}| tr -d \")
-echo flowname=${flow}
-export flowname=${flow}
+# -------------------------------------
 IFS=$PRE_IFS
