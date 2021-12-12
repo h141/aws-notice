@@ -65,6 +65,7 @@ fi
 # Tag VpcEndpointSSMID
 set -eu
 outputs=$( aws cloudformation describe-stacks --stack-name ${stackname} | jq .Stacks[0].Outputs[] )
+echo
 # --
 for service in SSM SNS Lambda Stepfunctions; do
   idkey="VpcEndpoint${service}ID"
