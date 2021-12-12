@@ -4,9 +4,9 @@ PYTHONIOENCODING=UTF-8
 # SNS Infra Alert
 # -------------------------------------
 sns_infra_alert="infra-alert-snstopic"
-aws sns list-topics | jq -r '.Topics[].TopicArn'|cut --d : --f 6|grep "^${sns_infra_alert}$" >/dev/null
+aws sns list-topics | jq -r '.Topics[].TopicArn'|cut --d : --f 6|grep "^${sns_infra_alert}$"
 rtn_sns_infra_alert=$?
-if [ $rtn_sns_infra_alert != 0 ]; then
+if [ ${rtn_sns_infra_alert} == 0 ]; then
   echo Create SNS Topic and Subscription
   echo
   read -p "Enter mail address for SNStopic \"${sns_infra_alert}\":" mailaddress
