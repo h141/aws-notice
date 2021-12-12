@@ -269,6 +269,7 @@ Resources:
         Variables:
           STATEMACHINE: !GetAtt StateMachinesf01connect.Name
           CALLTIMES: 3
+          WAITSECONDS: 300
           MESSAGE: "AWS障害です"
   # --
   Lambdafnc0301subdevops:
@@ -371,10 +372,11 @@ Resources:
         lambdaphoneArn: !GetAtt Lambdafnc0401sfphone.Arn
         lambdacheckArn: !GetAtt Lambdafnc0402sfcheck.Arn
       LoggingConfiguration:
-        Destinations:
-          - CloudWatchLogsLogGroup: !Join ["/",["/aws/vendedlogs/states", !Ref LogGroupsf01connect ] ]
-        IncludeExecutionData: true
         Level: ERROR
+        IncludeExecutionData: True
+        Destinations:
+          - CloudWatchLogsLogGroup:
+              LogGroupArn: !GetAtt LogGroupsf01connect.Arn
   # ===========================================================================
   # CloudWatch Alarm
   # ===========================================================================
