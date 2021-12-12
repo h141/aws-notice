@@ -36,7 +36,7 @@ else
   if [ -z "${vazc+UNDEF}" -a "$az1name" = "ap-northeast-1a" ]; then
     vazc=$az4name
   fi
-  template_file="file://./02_network.yaml"
+  template_file="file://./03_network.yaml"
   aws cloudformation create-stack --stack-name $stackname \
     --template-body $template_file \
     --enable-termination-protection \

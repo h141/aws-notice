@@ -1,4 +1,6 @@
 #! /bin/bash
+# ------------------
+# accountname="PROD"
 # ------------------ PhoneNumber 
 # cpn_default=""
 # ------------------ Azure DevOps

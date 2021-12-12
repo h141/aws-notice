@@ -19,7 +19,7 @@ else
   git checkout main >/dev/null  2>&1
 fi
 # ------------
-conconf_path="$HOME/_config_03_lambda.sh"
+conconf_path="$HOME/_config_04_lambda.sh"
 if [ ! -f "$conconf_path" ]; then
   cp $BASEDIR/_config.sh "$conconf_path"
   vi "$conconf_path"
@@ -28,19 +28,23 @@ fi
 { set +eu; } 2>/dev/null
 # -------------------------------------
 echo
-echo START 00_connect.sh
-. 00_connect.sh
+echo START 00_sns_infra_alert.sh
+. 00_sns_infra_alert.sh
 echo END
 echo
-echo START 01_iam.sh
-. 01_iam.sh
+echo START 01_connect.sh
+. 01_connect.sh
 echo END
 echo
-echo START 02_network.sh
-. 02_network.sh
+echo START 02_iam.sh
+. 02_iam.sh
 echo END
 echo
-echo START 03_lambda.sh
-. 03_lambda.sh
+echo START 03_network.sh
+. 03_network.sh
+echo END
+echo
+echo START 04_lambda.sh
+. 04_lambda.sh
 echo END
 # -------------------------------------

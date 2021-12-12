@@ -2,12 +2,11 @@
 # -------------------------------------
 # StepFunctions Lambda
 # -------------------------------------
-conconf_path="$HOME/_config_03_lambda.sh"
+conconf_path="$HOME/_config_04_lambda.sh"
 # ------------
 if [ -f "$conconf_path" ]; then
   . "$conconf_path"
 fi
-
 stackname="stack-shub-alert-sf-lambda"
 PYTHONIOENCODING=UTF-8
 status=$(aws cloudformation describe-stacks --stack-name $stackname 2>/dev/null | jq -r .Stacks[].StackStatus)
@@ -19,6 +18,41 @@ elif [ -n "${status}" ]; then
     exit 
 else
   set -eu
+  # "ParameterKey=vConnectInstanceId,ParameterValue='${instanceid}'"
+  if [ -z "${instanceid+UNDEF}" ]; then
+    echo "Setup environmental variable \"instanceid\""
+    exit
+  fi
+  # "ParameterKey=vConnectQueueId,ParameterValue='${queueid}'"
+  if [ -z "${queueid+UNDEF}" ]; then
+    echo "Setup environmental variable \"queueid\""
+    exit
+  fi
+  # "ParameterKey=vConnectQueueName,ParameterValue='${queuename}'"
+  if [ -z "${queuename+UNDEF}" ]; then
+    echo "Setup environmental variable \"queuename\""
+    exit
+  fi
+  # "ParameterKey=vConnectFlowId,ParameterValue='${flowid}'"
+  if [ -z "${flowid+UNDEF}" ]; then
+    echo "Setup environmental variable \"flowid\""
+    exit
+  fi
+  # "ParameterKey=vConnectFlowName,ParameterValue='${flowname}'"
+  if [ -z "${flowname+UNDEF}" ]; then
+    echo "Setup environmental variable \"flowname\""
+    exit
+  fi
+  # "ParameterKey=vConnectSourcePhoneNumber,ParameterValue='${phonenumber}'"
+  if [ -z "${phonenumber+UNDEF}" ]; then
+    echo "Setup environmental variable \"phonenumber\""
+    exit
+  fi
+  # "ParameterKey=vSNSInfraAlert,ParameterValue='${sns_infra_alert}'"
+  if [ -z "${sns_infra_alert+UNDEF}" ]; then
+    echo "Setup environmental variable \"sns_infra_alert\""
+    exit
+  fi
   # --------------------------------
   # ParameterKey=vS3bucketName,ParameterValue='${cfbucket}'
   # search S3 bucket for CFn template
@@ -47,7 +81,9 @@ else
   # --------------------------------
   # ParameterKey=vAccountName,ParameterValue='${accountname}'
   if [ -z "${accountname+UNDEF}" ]; then
-    accountname="PROD"
+    read -p "Enter account name[PROD]:" accountname
+    accountname="${accountname:=PROD}"
+    echo "accountname=\"${accountname}\"" >> "$conconf_path"
   fi
   echo vAccountName: ${accountname}
   echo
@@ -136,7 +172,7 @@ else
   aws s3 cp $smfilepath s3://${cfbucket}/statemachine/
   echo
   # ------------------------------------------
-  template_file="file://./03_lambda.yaml"
+  template_file="file://./04_lambda.yaml"
   # --
   # adb_default=$(echo $adb_default | sed 's/ /\\ /g')
   set -x
@@ -159,8 +195,9 @@ else
     "ParameterKey=vConnectFlowId,ParameterValue='${flowid}'" \
     "ParameterKey=vConnectFlowName,ParameterValue='${flowname}'" \
     "ParameterKey=vConnectSourcePhoneNumber,ParameterValue='${phonenumber}'" \
-    "ParameterKey=vSSMADBdefault,ParameterValue='${adb_default}'"
-  set +x
+    "ParameterKey=vSSMADBdefault,ParameterValue='${adb_default}'" \
+    "ParameterKey=vSNSInfraAlert,ParameterValue='${sns_infra_alert}'"
+  { set +x; } 2>/dev/null
   # -------------------------------------
   # wait status change
   status="CREATE_IN_PROGRESS"

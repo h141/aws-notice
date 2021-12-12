@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: 2010-09-09
+# -------------------------------------
+Metadata: 
+  AWS::CloudFormation::Interface: 
+    ParameterGroups: 
+      -
+        Parameters: 
+          - vMailAddress
+          - vSNSTopic
+# -------------------------------------
+Parameters:
+  vMailAddress:
+    Type: String
+  vSNSTopic:
+    Type: String
+# -------------------------------------
+Resources:
+  # ===========================================================================
+  # SNS
+  # ===========================================================================
+  SNSTopicInfraAlert:
+    Type: AWS::SNS::Topic
+    DeletionPolicy: Retain
+    Properties:
+      TopicName: !Ref vSNSTopic
+  SNSSubscriptionInfraAlert:
+    Type: AWS::SNS::Subscription
+    DeletionPolicy: Retain
+    Properties:
+      Endpoint: !Ref vMailAddress
+      Protocol: email
+      TopicArn: !Ref SNSTopicInfraAlert

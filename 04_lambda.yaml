@@ -34,7 +34,8 @@ Metadata:
           - vConnectFlowId
           - vConnectFlowName
           - vConnectSourcePhoneNumber
-          # -------------------------------------
+          - vSNSInfraAlert
+# -------------------------------------
 Parameters:
   vS3bucketName:
     Type: String
@@ -68,6 +69,8 @@ Parameters:
   vConnectFlowName:
     Type: String
   vConnectSourcePhoneNumber:
+    Type: String
+  vSNSInfraAlert:
     Type: String
 # -------------------------------------
 Resources:
@@ -368,13 +371,6 @@ Resources:
         lambdaphoneArn: !GetAtt Lambdafnc0401sfphone.Arn
         lambdacheckArn: !GetAtt Lambdafnc0402sfcheck.Arn
   # ===========================================================================
-  # SNS Topic
-  # ===========================================================================
-  SNSInfraAlert:
-    Type: AWS::SNS::Topic
-    Properties:
-      TopicName: infra-alert-snstopic
-  # ===========================================================================
   # CloudWatch Alarm
   # ===========================================================================
   CWAlarmfnc01siemErrors:
@@ -396,7 +392,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmfnc02snsErrors:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -416,7 +412,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmfnc03boardErrors:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -436,7 +432,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmfnc04connectErrors:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -456,7 +452,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmfnc0301subdevopsErrors:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -476,7 +472,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmfnc0401sfphoneErrors:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -496,7 +492,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmfnc0402sfcheckErrors:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -516,7 +512,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   # ---------------------------------------------------------- StepFunctions --
   CWAlarmsf01connectFail:
     Type: "AWS::CloudWatch::Alarm"
@@ -537,7 +533,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmsf01connectAbort:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -557,7 +553,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmsf01connectTimeout:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -577,7 +573,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   # ---------------------------------------------------------------- Connect --
   CWAlarmConnectFlowErrors:
     Type: "AWS::CloudWatch::Alarm"
@@ -602,7 +598,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmConnectFlowFatal:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -626,7 +622,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmConnectMisconfig:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -648,7 +644,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmConnectThrottledCalls:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -670,7 +666,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   CWAlarmConnectQueueCapExceed:
     Type: "AWS::CloudWatch::Alarm"
     Properties:
@@ -694,7 +690,7 @@ Resources:
       EvaluationPeriods: 1
       TreatMissingData: notBreaching
       AlarmActions:
-        - !Ref SNSInfraAlert
+        - !Ref vSNSInfraAlert
   # -------------------------------------- ClodWatch Event/ EventBridge Rule --
   EventRuleLambdafnc02sns:
     Type: "AWS::Events::Rule"

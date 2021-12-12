@@ -13,7 +13,7 @@ elif [ -n "${status}" ]; then
     exit 
 else
   set -eu
-  template_file="file://./01_iam.yaml"
+  template_file="file://./02_iam.yaml"
   aws cloudformation create-stack --stack-name $stackname \
     --template-body $template_file \
     --capabilities CAPABILITY_NAMED_IAM \
