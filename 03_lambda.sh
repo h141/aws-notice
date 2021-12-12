@@ -11,10 +11,9 @@ fi
 stackname="stack-shub-alert-sf-lambda"
 PYTHONIOENCODING=UTF-8
 status=$(aws cloudformation describe-stacks --stack-name $stackname 2>/dev/null | jq -r .Stacks[].StackStatus)
-echo "status ${status}"
 if [ "${status}" == "CREATE_COMPLETE" ]; then
   echo cloudformation stack $stackname has already been created.
-elif [ -v ${status} ]; then
+elif [ -n ${status} ]; then
     echo "ERROR  CloudFormation Stack Status $status"
     printf '\033[31m%s\033[m\n' "Forced Termination. Delete Stack $stackname."
     exit 
