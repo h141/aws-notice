@@ -4,9 +4,13 @@
 # -------------------------------------
 stackname="stack-shub-alert-network"
 PYTHONIOENCODING=UTF-8
-status=$(aws cloudformation describe-stacks --stack-name $stackname | jq -r .Stacks[].StackStatus)
+status=$(aws cloudformation describe-stacks --stack-name $stacknamej 2>/dev/nul | jq -r .Stacks[].StackStatus)
 if [ "${status}" == "CREATE_COMPLETE" ]; then
   echo cloudformation stack $stackname has already been created.
+elif [ -v ${status} ]; then
+    echo "ERROR  CloudFormation Stack Status $status"
+    printf '\033[31m%s\033[m\n' "Forced Termination. Delete Stack $stackname."
+    exit 
 else
   set -eu
   az1name=$(aws ec2 describe-availability-zones --region ${AWS_REGION} | \
