@@ -3,7 +3,17 @@ PYTHONIOENCODING=UTF-8
 # -------------------------------------
 # SNS Infra Alert
 # -------------------------------------
-sns_infra_alert_name="infra-alert-snstopic"
+conconf_path="$HOME/_config_00_sns_infra_alert.sh"
+# ------------
+if [ -f "$conconf_path" ]; then
+  . "$conconf_path"
+fi
+if [ -z "${sns_infra_alert_name+UNDEF}" ]; then
+  echo
+  read -p "Enter SNStopic Name[infra-alert-snstopic]:" sns_infra_alert_name
+  sns_infra_alert_name="${sns_infra_alert_name:=infra-alert-snstopic}"
+  echo "sns_infra_alert_name=\"${sns_infra_alert_name}\"" >> "$conconf_path"
+fi
 aws sns list-topics | jq -r '.Topics[].TopicArn'|cut --d : --f 6|grep "^${sns_infra_alert_name}$" >/dev/null
 rtn_sns_infra_alert=$?
 if [ ${rtn_sns_infra_alert} == 0 ]; then
@@ -11,7 +21,7 @@ if [ ${rtn_sns_infra_alert} == 0 ]; then
 else
   echo Create SNS Topic and Subscription
   echo
-  read -p "Enter mail address for SNStopic \"${sns_infra_alert_name}\":" mailaddress
+  read -p "Enter mail address. ex: notify@example.com :" mailaddress
   # ------------------------------------------
   template_file="file://./00_sns_infra_alert.yaml"
   stackname="stack-tmp-infra-alert-snstopic"
