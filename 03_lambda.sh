@@ -63,11 +63,13 @@ else
   # ParameterKey=vDevOpsPAT,ParameterValue='${pat}'
   if [ -z "${pat+UNDEF}" ]; then
     read -p "Enter azure devops PAT:" pat
+    echo "pat=\"${pat}\"" >> "$conconf_path"
   fi
   echo vDevOpsPAT: ${pat}
   # ParameterKey=vDevOpsORGANIZATION,ParameterValue='${organization}'
   if [ -z "${organization+UNDEF}" ]; then
     read -p "Enter azure devops ORGANIZATION:" organization
+    echo "organization=\"${organization}\"" >> "$conconf_path"
   fi
   echo vDevOpsORGANIZATION: ${organization}
   echo
@@ -75,28 +77,30 @@ else
   # ParameterKey=vSSMADBdefault,ParameterValue='${adb_default}'
   if [ -z "${adb_default_project+UNDEF}" ]; then
     read -p "Enter azure devops PROJECT:" adb_default_project
+    echo "adb_default_project=\"${adb_default_project}\"" >> "$conconf_path"
   fi
   if [ -z "${adb_default_team+UNDEF}" ]; then
     read -p "Enter azure devops TEAM:" adb_default_team
+    echo "adb_default_team=\"${adb_default_team}\"" >> "$conconf_path"
   fi
   # --
   if [ -z "${adb_default_title+UNDEF}" ]; then
     read -p "Enter azure devops TITLE[AWS System failure]:" adb_default_title
+    adb_default_title="${adb_default_title:=AWS System failure}"
     echo "adb_default_title=\"${adb_default_title}\"" >> "$conconf_path"
   fi
-  adb_default_title="${adb_default_title:=AWS System failure}"
   # --
   if [ -z "${adb_default_type+UNDEF}" ]; then
     read -p "Enter azure devops TYPE [bug]:" adb_default_type
+    adb_default_type="${adb_default_type:=bug}"
     echo "adb_default_type=\"${adb_default_type}\"" >> "$conconf_path"
   fi
-  adb_default_type="${adb_default_type:=bug}"
   # --
   if [ -z "${adb_default_tags+UNDEF}" ]; then
     read -p "Enter azure devops TAGS [aws; alarm;]:" adb_default_tags
+    adb_default_tags="${adb_default_tags:=aws; alarm;}"
     echo "adb_default_tags=\"${adb_default_tags}\"" >> "$conconf_path"
   fi
-  adb_default_tags="${adb_default_tags:=aws; alarm;}"
   # --
   if [ -z "${adb_default_parentid+UNDEF}" ]; then
     read -p "Enter azure devops PARENT ID :" adb_default_parentid
@@ -108,6 +112,7 @@ else
   else
     adb_default='{project:"'${adb_default_project}'",team:"'${adb_default_team}'",title:"'${adb_default_title}'",type:"'${adb_default_type}'",tags:"'${adb_default_tags}'",parentid:"'${adb_default_parentid}'"}'
   fi
+  echo
   echo vSSMADBdefault: ${adb_default}
   echo
   # ------------------------------------- CPN ---

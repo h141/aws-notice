@@ -1,9 +1,9 @@
 #! /bin/bash
 # ------------------ PhoneNumber 
-# export cpn_default=""
+# cpn_default=""
 # ------------------ Azure DevOps
-# export pat=""
-# export organization=""
-# export adb_default_project=""
-# export adb_default_team=""
-# export adb_default_parentid=""
+# pat=""
+# organization=""
+# adb_default_project=""
+# adb_default_team=""
+# adb_default_parentid=""
