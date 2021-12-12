@@ -148,9 +148,9 @@ else
   fi
   # --
   if [ -z "${adb_default_parentid+UNDEF}" ]; then
-    adb_default='{project:"'${adb_default_project}'",team:"'${adb_default_team}'",title:"'${adb_default_title}'",type:"'${adb_default_type}'",tags:"'${adb_default_tags}'"}'
+    adb_default='{"project":"'${adb_default_project}'","team":"'${adb_default_team}'","title":"'${adb_default_title}'","type":"'${adb_default_type}'","tags":"'${adb_default_tags}'"}'
   else
-    adb_default='{project:"'${adb_default_project}'",team:"'${adb_default_team}'",title:"'${adb_default_title}'",type:"'${adb_default_type}'",tags:"'${adb_default_tags}'",parentid:"'${adb_default_parentid}'"}'
+    adb_default='{"project":"'${adb_default_project}'","team":"'${adb_default_team}'","title":"'${adb_default_title}'","type":"'${adb_default_type}'","tags":"'${adb_default_tags}'","parentid":"'${adb_default_parentid}'"}'
   fi
   echo
   echo vSSMADBdefault: ${adb_default}
