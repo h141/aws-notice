@@ -4,7 +4,7 @@ PYTHONIOENCODING=UTF-8
 # SNS Infra Alert
 # -------------------------------------
 sns_infra_alert_name="infra-alert-snstopic"
-aws sns list-topics | jq -r '.Topics[].TopicArn'|cut --d : --f 6|grep "^${sns_infra_alert_name}$"
+aws sns list-topics | jq -r '.Topics[].TopicArn'|cut --d : --f 6|grep "^${sns_infra_alert_name}$" >/dev/null
 rtn_sns_infra_alert=$?
 if [ ${rtn_sns_infra_alert} == 0 ]; then
   echo "SNS topic \"${sns_infra_alert_name}\" already exists." 
@@ -40,6 +40,6 @@ else
   fi
   { set +eu; } 2>/dev/null
 fi
-sns_infra_alert=$( aws sns list-topics | jq -r '.Topics[].TopicArn'| \
+export sns_infra_alert=$( aws sns list-topics | jq -r '.Topics[].TopicArn'| \
   grep ":${sns_infra_alert_name}$" )
-
+echo "export sns_infra_alert=\"${sns_infra_alert}\""
