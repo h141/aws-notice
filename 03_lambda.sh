@@ -54,7 +54,7 @@ else
     echo Please, select an sns_default to notify.
     select sns_default in ${topics}
     do break ; done 
-    echo sns_default="$sns_default" >> "$conconf_path"
+    echo "sns_default=\"${sns_default}\"" >> "$conconf_path"
     echo
   fi
   echo vSSMSNSdefault: ${sns_default}
@@ -82,21 +82,25 @@ else
   # --
   if [ -z "${adb_default_title+UNDEF}" ]; then
     read -p "Enter azure devops TITLE[AWS System failure]:" adb_default_title
+    echo "adb_default_title=\"${adb_default_title}\"" >> "$conconf_path"
   fi
   adb_default_title="${adb_default_title:=AWS System failure}"
   # --
   if [ -z "${adb_default_type+UNDEF}" ]; then
     read -p "Enter azure devops TYPE [bug]:" adb_default_type
+    echo "adb_default_type=\"${adb_default_type}\"" >> "$conconf_path"
   fi
   adb_default_type="${adb_default_type:=bug}"
   # --
   if [ -z "${adb_default_tags+UNDEF}" ]; then
     read -p "Enter azure devops TAGS [aws; alarm;]:" adb_default_tags
+    echo "adb_default_tags=\"${adb_default_tags}\"" >> "$conconf_path"
   fi
   adb_default_tags="${adb_default_tags:=aws; alarm;}"
   # --
   if [ -z "${adb_default_parentid+UNDEF}" ]; then
     read -p "Enter azure devops PARENT ID :" adb_default_parentid
+    echo "adb_default_parentid=\"${adb_default_parentid}\"" >> "$conconf_path"
   fi
   # --
   if [ -z "${adb_default_parentid+UNDEF}" ]; then

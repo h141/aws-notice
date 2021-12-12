@@ -142,12 +142,12 @@ if [ ! -f "$conconf_path" ]; then
   export flowname=${flow}
   # --
 cat << EOS > "${conconf_path}"
-export instanceid=\"${instanceid}\"
-export queueid=\"${queueid}\"
-export queuename=\"${queue}\"
-export phonenumber=\"${phonenumber}\"
-export flowid=\"${flowid}\"
-export flowname=\"${flow}\"
+export instanceid="${instanceid}"
+export queueid="${queueid}"
+export queuename="${queue}"
+export phonenumber="${phonenumber}"
+export flowid="${flowid}"
+export flowname="${flow}"
 EOS
 fi
 # -------------------------------------
