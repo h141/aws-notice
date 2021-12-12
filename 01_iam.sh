@@ -9,9 +9,9 @@ if [ "${status}" == "CREATE_COMPLETE" ]; then
   echo cloudformation stack $stackname has already been created.
 else
   set -eu
-  template_opt="--template-body file://./01_iam.yaml"
+  template_file="file://./01_iam.yaml"
   aws cloudformation create-stack --stack-name $stackname \
-    $template_opt \
+    --template-body $template_file \
     --capabilities CAPABILITY_NAMED_IAM \
     --enable-termination-protection \
     --tags Key=Product,Value=IntegratedNotification

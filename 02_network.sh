@@ -32,14 +32,14 @@ else
   if [ -z "${vazc+UNDEF}" -a "$az1name" = "ap-northeast-1a" ]; then
     vazc=$az4name
   fi
-  parameters_opt="--parameters ParameterKey=vAZa,ParameterValue=$vaza \
-    ParameterKey=vAZc,ParameterValue=$vazc"
-  template_opt="--template-body file://./02_network.yaml"
+  template_file="file://./02_network.yaml"
   aws cloudformation create-stack --stack-name $stackname \
-    $template_opt \
+    --template-body $template_file \
     --enable-termination-protection \
     --tags Key=Product,Value=IntegratedNotification \
-    $parameters_opt
+    --parameters \
+    "ParameterKey=vAZa,ParameterValue='${vaza}'" \
+    "ParameterKey=vAZc,ParameterValue='${vazc}'"
   # -------------------------------------
   # wait status change
   status="CREATE_IN_PROGRESS"

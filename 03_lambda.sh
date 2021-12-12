@@ -121,14 +121,14 @@ else
   echo Upload stepfunctions smfile to S3 bucket ${cfbucket}
   smfilepath=$(ls -1F statemachine/*.yaml|head -1)
   aws s3 cp $smfilepath s3://${cfbucket}/statemachine/
-  # --
-  template_opt="--template-body file://./03_lambda.yaml"
-  # -------------------------------------
+  echo
+  # ------------------------------------------
+  template_file="file://./03_lambda.yaml"
   # --
   # adb_default=$(echo $adb_default | sed 's/ /\\ /g')
   set -x
   aws cloudformation create-stack --stack-name $stackname \
-  v$template_opt \
+    --template-body $template_file \
     --enable-termination-protection \
     --tags Key=Product,Value=IntegratedNotification \
     --parameters \
