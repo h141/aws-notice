@@ -17,4 +17,6 @@ if [ $rtn_sns_infra != 0 ]; then
     "ParameterKey=vMailAddress,ParameterValue='${mailaddress}'" \
     "ParameterKey=vSNSTopic,ParameterValue='${sns_infra_alert}'"
   { set +eu; } 2>/dev/null
+else
+  echo "SNS topic \"${sns_infra_alert}\" already exists." 
 fi
