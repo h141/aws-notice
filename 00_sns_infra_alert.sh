@@ -18,7 +18,7 @@ else
   # --
   aws cloudformation create-stack --stack-name $stackname \
     --template-body $template_file \
-    --enable-termination-protection \
+    --no-enable-termination-protection \
     --tags Key=Product,Value=IntegratedNotification \
     --parameters \
     "ParameterKey=vMailAddress,ParameterValue='${mailaddress}'" \
