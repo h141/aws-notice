@@ -4,7 +4,7 @@
 # -------------------------------------
 stackname="stack-shub-alert-iam"
 PYTHONIOENCODING=UTF-8
-status=$(aws cloudformation describe-stacks --stack-name $stacknamej 2>/dev/null | jq -r .Stacks[].StackStatus)
+status=$(aws cloudformation describe-stacks --stack-name $stackname 2>/dev/null | jq -r .Stacks[].StackStatus)
 if [ "${status}" == "CREATE_COMPLETE" ]; then
   echo cloudformation stack $stackname has already been created.
 elif [ -v ${status} ]; then
