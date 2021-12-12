@@ -609,7 +609,7 @@ Resources:
             Action:
               - states:StartExecution
             Resource:
-              - !Sub "arn:aws:states:*:${AWS::AccountId}:shub-*"
+              - !Sub "arn:aws:states:*:${AWS::AccountId}:*"
             Principal:
               AWS:
                 - !ImportValue IAMRoleAlertConnectPhoneArn

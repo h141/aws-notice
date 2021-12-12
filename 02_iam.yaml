@@ -170,7 +170,7 @@ Resources:
             Action:
               - states:StartExecution
             Resource:
-              - !Sub "arn:aws:states:*:${AWS::AccountId}:stateMachine:shub-*"
+              - !Sub "arn:aws:states:*:${AWS::AccountId}:stateMachine:*"
   # --
   IAMPolicyStepfunctionsConnectPhone:
     Type: AWS::IAM::ManagedPolicy
