@@ -19,11 +19,10 @@ else
   git checkout main >/dev/null  2>&1
 fi
 # ------------
-if [ ! -f "$HOME/_config.sh" ]; then
-  cp $BASEDIR/_config.sh $HOME/_config.sh
-  echo
-  echo Edit $HOME/_config.sh And Restart this script 
-  vi $HOME/_config.sh
+conconf_path="$HOME/_config_03_lambda.sh"
+if [ ! -f "$conconf_path" ]; then
+  cp $BASEDIR/_config.sh "$conconf_path"
+  vi "$conconf_path"
   exit
 fi
 { set +eu; } 2>/dev/null

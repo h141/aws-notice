@@ -2,6 +2,12 @@
 # -------------------------------------
 # StepFunctions Lambda
 # -------------------------------------
+conconf_path="$HOME/_config_03_lambda.sh"
+# ------------
+if [ -f "$conconf_path" ]; then
+  . "$conconf_path"
+fi
+
 stackname="stack-shub-alert-sf-lambda"
 PYTHONIOENCODING=UTF-8
 status=$(aws cloudformation describe-stacks --stack-name $stackname | jq -r .Stacks[].StackStatus)
@@ -9,7 +15,6 @@ if [ "${status}" == "CREATE_COMPLETE" ]; then
   echo cloudformation stack $stackname has already been created.
 else
   set -eu
-  . $HOME/_config.sh
   # --------------------------------
   # ParameterKey=vS3bucketName,ParameterValue='${cfbucket}'
   # search S3 bucket for CFn template
@@ -49,6 +54,7 @@ else
     echo Please, select an sns_default to notify.
     select sns_default in ${topics}
     do break ; done 
+    echo sns_default="$sns_default" >> "$conconf_path"
     echo
   fi
   echo vSSMSNSdefault: ${sns_default}
