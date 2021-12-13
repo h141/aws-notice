@@ -10,7 +10,7 @@ if [ -f "$conconf_path" ]; then
 fi
 if [ -z "${sns_infra_alert_name+UNDEF}" ]; then
   echo
-  read -p "Enter SNStopic Name[infra-alert-snstopic]:" sns_infra_alert_name
+  read -p "Enter SNStopicName for Lambda abnormal End[infra-alert-snstopic]:" sns_infra_alert_name
   sns_infra_alert_name="${sns_infra_alert_name:=infra-alert-snstopic}"
   echo "sns_infra_alert_name=\"${sns_infra_alert_name}\"" >> "$conconf_path"
 fi
@@ -21,7 +21,7 @@ if [ ${rtn_sns_infra_alert} == 0 ]; then
 else
   echo Create SNS Topic and Subscription
   echo
-  read -p "Enter mail address. ex: notify@example.com :" mailaddress
+  read -p "Enter mail address  for Lambda abnormal End. ex: notify@example.com :" mailaddress
   # ------------------------------------------
   template_file="file://./00_sns_infra_alert.yaml"
   stackname="stack-tmp-infra-alert-snstopic"
