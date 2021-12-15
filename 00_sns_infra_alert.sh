@@ -53,3 +53,8 @@ fi
 export sns_infra_alert=$( aws sns list-topics | jq -r '.Topics[].TopicArn'| \
   grep ":${sns_infra_alert_name}$" )
 echo "export sns_infra_alert=\"${sns_infra_alert}\""
+if [ -z "${sns_infra_alert+UNDEF}" ]; then
+  echo "SNS topic \"${sns_infra_alert_name}\" is not exists." 
+  printf '\033[31m%s\033[m\n' "Forced Termination"
+  exit 
+fi
