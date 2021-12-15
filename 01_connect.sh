@@ -56,6 +56,7 @@ if [ -z "${queueid+UNDEF}" -o -z "${queuename+UNDEF}"  ]; then
   queues_num=$(echo $queues | wc --w)
   if [ $queues_num == 0 ]; then
     echo This instance does not have an available queue.
+    printf '\033[31m%s\033[m\n' "Forced Termination"
     exit
   fi
   echo Please, select a queue in instance $instance.
