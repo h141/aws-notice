@@ -18,12 +18,14 @@ else
   cd "$BASEDIR" || exit
   git checkout main >/dev/null  2>&1
 fi
+{ set +eu; } 2>/dev/null
 # ------------
 if [ "$1" == "--test" ]; then
   sh "${BASEDIR}/_test/auto-test.sh"
   exit
 fi
 # ------------
+set -eu
 conconf_path="$HOME/_config_04_lambda.sh"
 if [ ! -f "$conconf_path" ]; then
   cp $BASEDIR/_config.sh "$conconf_path"
