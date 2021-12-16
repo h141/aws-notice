@@ -1,12 +1,2 @@
-{
-  "Records": [
-    {
-      "Sns": {
-        "Timestamp": "2020-10-10",
-        "TopicArn": "arn:aws:sns:ap-northeast-1:${AWSID}:test",
-        "Message": "msg siem test01",
-        "Subject": "sbj siem test01"
-      }
-    }
-  ]
-}
+{"Records": [{"Sns":{"TopicArn": "arn:aws:sns:${AWS_REGION}:${AWSID}:test",
+  "Subject": "sbj siem test16","Message": "msg siem test16\n- Severity: 70\n- ProductName: ABC123\nmsg"}}]}
