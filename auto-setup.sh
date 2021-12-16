@@ -19,6 +19,11 @@ else
   git checkout main >/dev/null  2>&1
 fi
 # ------------
+if [ "$1" == "--test" ]; then
+  sh "${BASEDIR}/_test/auto-test.sh"
+  exit
+fi
+# ------------
 conconf_path="$HOME/_config_04_lambda.sh"
 if [ ! -f "$conconf_path" ]; then
   cp $BASEDIR/_config.sh "$conconf_path"
