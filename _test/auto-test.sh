@@ -1,13 +1,20 @@
 TESTDIR=$(cd $(dirname $0); pwd)
-BASEDIR="$HOME/aws-notice"
-cd "$BASEDIR" || exit
-git fetch >/dev/null 2>&1
-git checkout main >/dev/null  2>&1
-git pull --rebase >/dev/null 2>&1
+cd ${TESTDIR}
 # --
 test01="aws lambda invoke --function-name shub-siem2securityhub-func"
-
-testname="siem_01"
 cd ${TESTDIR}
-json=$(cat ${testname}.json|base64|tr -d "\n")
-${test01} --payload "${json}" "$HOME/test_${testname}.log"
+
+tmpfile=$(mktemp)
+echo siem test
+for testfile in siem_*.json ;do
+  echo test ${testfile}
+  echo -input json------------------------
+  cat ${testfile}
+  echo -cmd------------------------
+  json=$(cat ${testfile}|base64|tr -d "\n")
+  ${test01} --payload "${json}" "${tmpfile}"
+  echo -outfile------------------------
+  cat "${tmpfile}"
+  echo -------------------------
+  read -p "next test?" tmp
+done
