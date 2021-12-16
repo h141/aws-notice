@@ -9,10 +9,10 @@ test01="aws lambda invoke --function-name shub-siem2securityhub-func"
 
 testname="siem_01"
 cd ${TESTDIR}
-json=$(cat ${testname}.json|tr -d '\r'|tr -d '\n')
+json=$(cat ${testname}.json|base64)
 echo ${test01} --payload "${json}" "$HOME/test_${testname}.log"
 
 testname="siem_02"
 cd ${TESTDIR}
-json=$(cat ${testname}.json|tr -d '\r'|tr -d '\n')
+json=$(cat ${testname}.json|base64)
 echo ${test01} --payload "${json}" "$HOME/test_${testname}.log"
