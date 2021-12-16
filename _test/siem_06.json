@@ -3,9 +3,9 @@
     {
       "Sns": {
         "Timestamp": "2020-10-10",
-        "TopicArn": "arn:aws:sns:ap-northeast-1:${AWSID}:test",
-        "Message": "msg siem test01",
-        "Subject": "sbj siem test01"
+        "TopicArn": "arn:aws:sns:${AWS_REGION}:${AWSID}:test",
+        "Message": "msg siem test06\n- Severity: x",
+        "Subject": "sbj siem test06"
       }
     }
   ]

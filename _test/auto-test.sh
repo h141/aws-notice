@@ -6,18 +6,19 @@ cd ${TESTDIR}
 SNSNAME=$(aws ssm get-parameter --name SNS_default | jq -r .Parameter.Value)
 AWSID=$(aws sts get-caller-identity|jq -r .Account)
 tmpfile=$(mktemp)
+# =====================================================
 echo siem test
 for testfile in siem_*.json ;do
-  json=$(cat ${testfile}|sed 's/${AWSID}/'${AWSID}'/g'|sed 's/${SNSNAME}/'${SNSNAME}'/g')
+  json=$(eval echo $(cat ${testfile}| sed 's/"/\\"/g'| tr -d "\n"))
   echo test ${testfile}
   echo -input json------------------------
   echo ${json}
   echo -cmd------------------------
   json64=$(echo ${json}|base64|tr -d "\n")
-  ${test01} --payload "${json}" "${tmpfile}"
+  ${test01} --payload "${json64}" "${tmpfile}"
   echo -outfile------------------------
   cat "${tmpfile}"
   echo
-  echo -------------------------
+  echo ========================================
   read -p "next test?" tmp
 done
