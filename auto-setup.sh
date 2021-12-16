@@ -1,6 +1,6 @@
 #! /bin/bash
 # bash <(curl -s -o- https://raw.githubusercontent.com/h141/aws-notice/main/auto-setup.sh)
-
+opt1="$1"
 # -------------------------------------
 PYTHONIOENCODING=UTF-8
 set -eu
@@ -18,14 +18,12 @@ else
   cd "$BASEDIR" || exit
   git checkout main >/dev/null  2>&1
 fi
-{ set +eu; } 2>/dev/null
 # ------------
-if [ "$1" == "--test" ]; then
+if [ "${opt1}" == "--test" ]; then
   sh "${BASEDIR}/_test/auto-test.sh"
   exit
 fi
 # ------------
-set -eu
 conconf_path="$HOME/_config_04_lambda.sh"
 if [ ! -f "$conconf_path" ]; then
   cp $BASEDIR/_config.sh "$conconf_path"
