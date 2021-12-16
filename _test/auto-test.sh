@@ -9,7 +9,7 @@ echo siem test
 for testfile in siem_*.json ;do
   echo test ${testfile}
   echo -input json------------------------
-  cat ${testfile}
+  cat ${testfile}|sed 's/${AWSID}/'${AWSID}'/g'
   echo -cmd------------------------
   json=$(cat ${testfile}|sed 's/${AWSID}/'${AWSID}'/g'|base64|tr -d "\n")
   ${test01} --payload "${json}" "${tmpfile}"
