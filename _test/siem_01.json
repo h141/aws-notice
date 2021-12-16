@@ -3,7 +3,7 @@
     {
       "Sns": {
         "Timestamp": "2020-10-10",
-        "TopicArn": "arn:aws:sns:ap-northeast-1:${AWSID}:test",
+        "TopicArn": "arn:aws:sns:ap-northeast-1:${AWSID}:test${SNSNAME}",
         "Message": "msg siem test01",
         "Subject": "sbj siem test01"
       }
