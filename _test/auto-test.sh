@@ -10,7 +10,7 @@ tmpfile=$(mktemp)
 echo siem test
 for testfile in siem_*.json ;do
   date=$(TZ=JST-9 date)
-  json=$(eval echo $(cat ${testfile}| sed 's/"/\\"/g'| tr -d "\n"))
+  json=$(eval echo $(cat ${testfile}| sed 's/\\/\\\\"/g'| sed 's/"/\\"/g'| tr -d "\n"))
   echo test ${testfile}
   echo DATE: ${date}
   echo -input json------------------------
