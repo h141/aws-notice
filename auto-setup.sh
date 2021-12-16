@@ -19,7 +19,7 @@ else
   git checkout main >/dev/null  2>&1
 fi
 # ------------
-if [ "${opt1}" == "--test" ]; then
+if [ "_${opt1}" == "_--test" ]; then
   sh "${BASEDIR}/_test/auto-test.sh"
   exit
 fi
