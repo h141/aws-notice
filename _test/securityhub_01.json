@@ -2,5 +2,5 @@
   "detail":{"findings": [{"AwsAccountId": "123456789012",
     "Title": "title 01","Description": "descs\ndesc01","Severity": { "Label": "HIGH"},
   "ProductFields": {"aws/securityhub/ProductName": "pro"},
-  "Resources": [{"Id": "A1"},{"Id": "B2"}]}}}
+  "Resources": [{"Id": "A1"},{"Id": "B2"}]}]}}
   
