@@ -39,9 +39,9 @@ declare -A prefixs=(
   ["board"]="securityhub"
   ["connect"]="securityhub"
 )
-
-
 # --
+func_name="${funcs[$test_type]}"
+prefix_name="${prefixs[$test_type]}"
 cd ${TESTDIR}
 if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
   func_name="${funcs[siem]}"
@@ -51,16 +51,14 @@ if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
     read -p "next test?" tmp
   done
   # -- To.DO
-elif [ "_$test_no" == "_" ];then
-  func_name="${funcs[$test_type]}"
-  prefix_name="${prefixs[$test_type]}"
+elif [ "_$test_no" == "_" -a "_$func_name" != "_" -a "_$prefix_name" != "_" ];then
   for testfile in ${prefix_name}_*.json ;do
     test_lambda_func "${func_name}" "${testfile}"
     read -p "next test?" tmp
   done
-else
-  func_name="${funcs[$test_type]}"
-  prefix_name="${prefixs[$test_type]}"
+elif [ "_$test_no" != "_" -a "_$func_name" != "_" -a "_$prefix_name" != "_" ];then
   test_lambda_func "${func_name}" "${prefix_name}_${test_no}.json"
   read -p "next test?" tmp
+else
+  echo arg error
 fi
