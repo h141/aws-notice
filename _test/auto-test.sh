@@ -25,15 +25,42 @@ function test_lambda_func () {
   echo ========================================
 }
 # --
-echo 1: $1
-echo 2: $2
-echo 3: $3
+test_type=$2
+test_no=$3
+declare -A funcs=(
+  ["siem"]="shub-siem2securityhub-func"
+  ["sns"]="shub-alert-sns-mail-func"
+  ["board"]="shub-alert-board-issue-func"
+  ["connect"]="shub-alert-connect-phone-func"
+)
+declare -A prefixs=(
+  ["siem"]="siem"
+  ["sns"]="securityhub"
+  ["board"]="securityhub"
+  ["connect"]="securityhub"
+)
 
-exit
 
-
+# --
 cd ${TESTDIR}
-for testfile in siem_*.json ;do
-  test_lambda_func "shub-siem2securityhub-func" "${testfile}"
+if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
+  func_name="${funcs[siem]}"
+  prefix_name="${prefixs[siem]}"
+  for testfile in ${prefix_name}_*.json ;do
+    test_lambda_func "${func_name}" "${testfile}"
+    read -p "next test?" tmp
+  done
+  # -- To.DO
+elif [ "_$test_no" == "_" ];then
+  func_name="${funcs[$test_type]}"
+  prefix_name="${prefixs[$test_type]}"
+  for testfile in ${prefix_name}_*.json ;do
+    test_lambda_func "${func_name}" "${testfile}"
+    read -p "next test?" tmp
+  done
+else
+  func_name="${funcs[$test_type]}"
+  prefix_name="${prefixs[$test_type]}"
+  test_lambda_func "${func_name}" "${prefix_name}_${test_no}.json"
   read -p "next test?" tmp
-done
+fi
