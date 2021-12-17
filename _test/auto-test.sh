@@ -44,13 +44,14 @@ func_name="${funcs[$test_type]}"
 prefix_name="${prefixs[$test_type]}"
 cd ${TESTDIR}
 if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
-  func_name="${funcs[siem]}"
-  prefix_name="${prefixs[siem]}"
-  for testfile in ${prefix_name}_*.json ;do
-    test_lambda_func "${func_name}" "${testfile}"
-    read -p "next test?" tmp
+  for tmp_type in siem sns board connect ;do
+    func_name="${funcs[$tmp_type]}"
+    prefix_name="${prefixs[$tmp_type]}"
+    for testfile in ${prefix_name}_*.json ;do
+      test_lambda_func "${func_name}" "${testfile}"
+      read -p "next test?" tmp
+    done
   done
-  # -- To.DO
 elif [ "_$test_no" == "_" -a "_$func_name" != "_" -a "_$prefix_name" != "_" ];then
   for testfile in ${prefix_name}_*.json ;do
     test_lambda_func "${func_name}" "${testfile}"
