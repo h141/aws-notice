@@ -20,7 +20,8 @@ else
 fi
 # ------------
 if [ "_${opt1}" == "_--test" ]; then
-  sh "${BASEDIR}/_test/auto-test.sh" $@
+  echo test "$@"
+  sh "${BASEDIR}/_test/auto-test.sh" "$@"
   exit
 fi
 # ------------
