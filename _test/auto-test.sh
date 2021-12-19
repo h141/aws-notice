@@ -60,9 +60,10 @@ if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
       echo "update environment ${envtestfile}"
       echo "-----"
       cat ${envtestfile}
+      echo
       echo "-----"
       aws lambda update-function-configuration --function-name "${func_name}" \
-        --environment "$(cat ${envtestfile})"
+        --environment "$(cat ${envtestfile})" >/dev/null
       test_lambda_func "${func_name}" "${testfile}"
       read -p "next test?" tmp
       echo ========================================
