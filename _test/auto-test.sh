@@ -10,7 +10,6 @@ function test_lambda_func () {
   funcname=$1
   filepath=$2
   json=$(eval echo $(cat ${filepath}| sed 's/\\/\\\\/g'| sed 's/"/\\"/g'| tr -d "\n"))
-  echo ========================================
   echo test ${funcname} ${filepath}
   date=$(TZ=JST-9 date)
   echo DATE: ${date}
@@ -41,6 +40,7 @@ declare -A prefixs=(
 )
 # --
 cd ${TESTDIR}
+echo ========================================
 if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
   for tmp_type in siem sns board connect ;do
     func_name="${funcs[$tmp_type]}"
@@ -54,6 +54,7 @@ if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
     org_env_file="org_${func_name}.json"
     aws lambda get-function-configuration --function-name "${func_name}" | \
       jq -r .Environment >"${org_env_file}"
+    testfile=${prefix_name}_02.json
     for envtestfile in env_${prefix_name}_*.json ;do
       echo "update environment ${envtestfile}"
       echo "-----"
