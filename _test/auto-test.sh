@@ -40,8 +40,6 @@ declare -A prefixs=(
   ["connect"]="securityhub"
 )
 # --
-func_name="${funcs[$test_type]}"
-prefix_name="${prefixs[$test_type]}"
 cd ${TESTDIR}
 if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
   for tmp_type in siem sns board connect ;do
@@ -77,15 +75,18 @@ if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
     read -p "next test?" tmp
     echo ========================================
   done
-
-elif [ "_$test_no" == "_" -a "_$func_name" != "_" -a "_$prefix_name" != "_" ];then
-  for testfile in ${prefix_name}_*.json ;do
-    test_lambda_func "${func_name}" "${testfile}"
-    read -p "next test?" tmp
-  done
-elif [ "_$test_no" != "_" -a "_$func_name" != "_" -a "_$prefix_name" != "_" ];then
-  test_lambda_func "${func_name}" "${prefix_name}_${test_no}.json"
-  read -p "next test?" tmp
 else
-  echo arg error
+  func_name="${funcs[$test_type]}"
+  prefix_name="${prefixs[$test_type]}"
+  if [ "_$test_no" == "_" -a "_$func_name" != "_" -a "_$prefix_name" != "_" ];then
+    for testfile in ${prefix_name}_*.json ;do
+      test_lambda_func "${func_name}" "${testfile}"
+      read -p "next test?" tmp
+    done
+  elif [ "_$test_no" != "_" -a "_$func_name" != "_" -a "_$prefix_name" != "_" ];then
+    test_lambda_func "${func_name}" "${prefix_name}_${test_no}.json"
+    read -p "next test?" tmp
+  else
+    echo arg error
+  fi
 fi
