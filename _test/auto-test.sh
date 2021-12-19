@@ -48,8 +48,8 @@ if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
     func_name="${funcs[$tmp_type]}"
     prefix_name="${prefixs[$tmp_type]}"
     for testfile in ${prefix_name}_*.json ;do
-      test_lambda_func "${func_name}" "${testfile}"
-      read -p "next test?" tmp
+      # test_lambda_func "${func_name}" "${testfile}"
+      # read -p "next test?" tmp
     done
     org_env_file="org_${func_name}.json"
     aws lambda get-function-configuration --function-name "${func_name}" | \
