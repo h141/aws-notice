@@ -51,7 +51,30 @@ if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
       test_lambda_func "${func_name}" "${testfile}"
       read -p "next test?" tmp
     done
+    org_env_file="org_${func_name}.json"
+    aws lambda get-function-configuration --function-name "${func_name}" | \
+      jq -r .Environment >"${org_env_file}"
+    for envtestfile in env_${prefix_name}_*.json ;do
+      echo "update environment ${envtestfile}"
+      echo "-----"
+      cat ${envtestfile}
+      echo "-----"
+      aws lambda update-function-configuration --function-name "${func_name}" \
+        --environment "$(cat ${envtestfile})"
+      test_lambda_func "${func_name}" "${testfile}"
+      read -p "next test?" tmp
+      echo ========================================
+    done
+    echo "update environment ${org_env_file}"
+    echo "-----"
+    aws lambda update-function-configuration --function-name "${func_name}" \
+      --environment "$(cat ${org_env_file})"
+    echo "-----"
+    aws lambda get-function-configuration --function-name "${func_name}"
+    read -p "next test?" tmp
+    echo ========================================
   done
+
 elif [ "_$test_no" == "_" -a "_$func_name" != "_" -a "_$prefix_name" != "_" ];then
   for testfile in ${prefix_name}_*.json ;do
     test_lambda_func "${func_name}" "${testfile}"

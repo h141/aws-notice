@@ -1,0 +1,10 @@
+{
+  "Variables": {
+    "SNS_FNC": "shub-alert-sns-mail-func",
+    "SNS_SEVERITY": "HIGH,CRITICAL,HOGE",
+    "ADB_FNC": "shub-alert-board-issue-func",
+    "ADB_SEVERITY": "HIGH,CRITICAL",
+    "CPN_FNC": "shub-alert-connect-phone-func",
+    "CPN_SEVERITY": "CRITICAL"
+  }
+}
