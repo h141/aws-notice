@@ -1,0 +1,8 @@
+{
+    "project": "testagile",
+    "team": "testagile Team",
+    "title": "別アカウントAWS障害テスト",
+    "type": "task",
+    "tags": "aws; alarm;",
+    "parentid": "26"
+}
