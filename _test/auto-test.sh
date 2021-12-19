@@ -48,6 +48,8 @@ if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
     func_name="${funcs[$tmp_type]}"
     prefix_name="${prefixs[$tmp_type]}"
     for testfile in ${prefix_name}_*.json ;do
+      echo "testfile ${testfile}"
+      echo "-----"
       # test_lambda_func "${func_name}" "${testfile}"
       # read -p "next test?" tmp
     done
