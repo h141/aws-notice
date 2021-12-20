@@ -2,4 +2,4 @@
   "detail":{"findings": [{
     "Title": "title 21","Description": "msg test21","Severity": { "Label": "HIGH"},
   "ProductFields": {"aws/securityhub/ProductName": "pro"},
-  "Resources": [{"x": "A1"},{"Id": "B2"}]}]}}
+  "Resources": [{"Id": "A1"},{"Id": "B2"}]}]}}
