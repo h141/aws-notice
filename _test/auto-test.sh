@@ -20,7 +20,7 @@ AWSID=$(aws sts get-caller-identity|jq -r .Account)
 # =====================================================
 # --
 function test_lambda_func () {
-  funcname=$1
+  func_name=$1
   filepath=$2
   # --
   envfilepath=$(echo ${filepath}| sed 's/\.json/_env\.json/g')
@@ -34,14 +34,14 @@ function test_lambda_func () {
       --environment "$(cat ${envfilepath})" >/dev/null
   fi
   json=$(eval echo $(cat ${filepath}| sed 's/\\/\\\\/g'| sed 's/"/\\"/g'| tr -d "\n"))
-  echo test ${funcname} ${filepath}
+  echo test ${func_name} ${filepath}
   date=$(TZ=JST-9 date)
   echo DATE: ${date}
   echo -input json------------------------
   echo ${json}
   echo -cmd------------------------
   json64=$(echo ${json}|base64|tr -d "\n")
-  aws lambda invoke --function-name ${funcname} --payload "${json64}" "${TMPFILE}"
+  aws lambda invoke --function-name ${func_name} --payload "${json64}" "${TMPFILE}"
   echo -outfile------------------------
   cat "${TMPFILE}"
   echo
@@ -52,9 +52,13 @@ function test_lambda_func () {
   while [ $status_alarm != "OK" ]; do
     echo sleep 60 now status ${status_alarm} 
     sleep 60
-    status_alarm=$( aws cloudwatch describe-alarms --alarm-names cwalarm-for-${funcname}-errors \
+    status_alarm=$( aws cloudwatch describe-alarms --alarm-names cwalarm-for-${func_name}-errors \
       | jq -r .MetricAlarms[].StateValue)
   done
+  echo reload environment
+  org_env_file="${TESTDIR}/org_env_${func_name}.json"
+  aws lambda update-function-configuration --function-name "${func_name}" \
+    --environment "$(cat ${org_env_file})"
 }
 # --
 test_type=$2
@@ -68,12 +72,9 @@ declare -A funcs=(
 function test_type_lambda_funcs () {
   tmp_type=$1
   # --
-  org_env_file="${TESTDIR}/org_env_${funcname}.json"
-  aws lambda get-function-configuration --function-name "${funcname}" | \
-    jq -r .Environment >"${org_env_file}"
-
-  cd ${TESTDIR}/${tmp_type}/
   func_name="${funcs[$tmp_type]}"
+  # --
+  cd ${TESTDIR}/${tmp_type}/
   for inputfile in input_[0-9][0-9].json ;do
     echo "inputfile ${inputfile}"
     echo "-----"
@@ -85,11 +86,15 @@ function test_type_lambda_funcs () {
   # ---
   echo sleep 90
   sleep 90
-  aws lambda update-function-configuration --function-name "${funcname}" \
-    --environment "$(cat ${org_env_file})"
-  echo ${status_alarm}
 }
 echo ========================================
+for tmp_type in siem sns board connect ;do
+  func_name="${funcs[$tmp_type]}"
+  org_env_file="${TESTDIR}/org_env_${func_name}.json"
+  aws lambda get-function-configuration --function-name "${func_name}" | \
+    jq -r .Environment >"${org_env_file}"
+done
+# ---
 if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
   for tmp_type in siem sns board connect ;do
     test_type_lambda_funcs ${tmp_type}

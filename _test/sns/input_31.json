@@ -1,5 +1,0 @@
-{"time": "2020-09-15T18:27:03Z","SNSTopicArn": "arn:aws:sns:ap-northeast-1:${AWSID}:test",
-  "detail":{"findings": [{"AwsAccountId": "111111111216",
-    "Title": "title 30","Description": "msg test30","Severity": { "Label": "HIGH"},
-  "ProductFields": {"aws/securityhub/ProductName": "pro"},
-  "Resources": [{"Id": "A1"},{"Id": "B2"}]}]}}
