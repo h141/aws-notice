@@ -47,10 +47,11 @@ function test_lambda_func () {
   echo
   echo ========================================
   # wait status change
+  sleep 60
   status_alarm="_"
   while [ $status_alarm != "OK" ]; do
-    echo sleep 20 now status ${status_alarm} 
-    sleep 20
+    echo sleep 60 now status ${status_alarm} 
+    sleep 60
     status_alarm=$( aws cloudwatch describe-alarms --alarm-names cwalarm-for-${funcname}-errors \
       | jq -r .MetricAlarms[].StateValue)
   done
@@ -82,8 +83,8 @@ function test_type_lambda_funcs () {
   echo "-----"
   aws lambda get-function-configuration --function-name "${func_name}"
   # ---
-  echo sleep 60
-  sleep 60
+  echo sleep 90
+  sleep 90
   aws lambda update-function-configuration --function-name "${funcname}" \
     --environment "$(cat ${org_env_file})"
   echo ${status_alarm}
