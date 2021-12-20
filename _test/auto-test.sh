@@ -7,10 +7,12 @@ cd ${TESTDIR}/_ssm/
 prfix_ssm=ssm
 for ssmfile in ${prfix_ssm}_*.txt ;do
   ssm_name=$(echo ${ssmfile} | sed "s/${prfix_ssm}_//g" | sed "s/.txt//g")
-  ssm_value=$(cat ${ssmfile} | tr -d "\r" | tr -d "\n")
-  echo create ${ssm_name}
-  echo aws ssm put-parameter --type String --name "${ssm_name}" --value "${ssm_value}"
-  aws ssm put-parameter --type String  --name "${ssm_name}" --value "${ssm_value}"
+  aws ssm get-parameter --name ${ssm_name} >/dev/null 2>&1
+  if [ $? != 0 ]; then
+    ssm_value=$(cat ${ssmfile} | tr -d "\r" | tr -d "\n")
+    echo create ${ssm_name}
+    aws ssm put-parameter --type String  --name "${ssm_name}" --value "${ssm_value}"
+  fi
 done
 cd ${TESTDIR}
 # =====================================================
@@ -47,6 +49,7 @@ function test_lambda_func () {
   echo
   echo ========================================
   # wait status change
+  echo sleep 60
   sleep 60
   status_alarm="_"
   while [ $status_alarm != "OK" ]; do
