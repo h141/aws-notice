@@ -30,8 +30,8 @@ function test_lambda_func () {
     cat ${envfilepath}
     echo
     echo "-----"
-    #aws lambda update-function-configuration --function-name "${func_name}" \
-    #  --environment "$(cat ${envfilepath})" >/dev/null
+    aws lambda update-function-configuration --function-name "${func_name}" \
+      --environment "$(cat ${envfilepath})" >/dev/null
   fi
   json=$(eval echo $(cat ${filepath}| sed 's/\\/\\\\/g'| sed 's/"/\\"/g'| tr -d "\n"))
   echo test ${funcname} ${filepath}
@@ -41,7 +41,7 @@ function test_lambda_func () {
   echo ${json}
   echo -cmd------------------------
   json64=$(echo ${json}|base64|tr -d "\n")
-  # aws lambda invoke --function-name ${funcname} --payload "${json64}" "${TMPFILE}"
+  aws lambda invoke --function-name ${funcname} --payload "${json64}" "${TMPFILE}"
   echo -outfile------------------------
   cat "${TMPFILE}"
   echo
