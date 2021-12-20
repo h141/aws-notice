@@ -109,7 +109,7 @@ else
   if [ "_$test_no" == "_" -a "_$func_name" != "_" ];then
     test_type_lambda_funcs ${test_type}
   elif [ "_$test_no" != "_" -a "_$func_name" != "_" ];then
-    test_lambda_func "${func_name}" "${test_type}/index_${test_no}.json"
+    test_lambda_func "${func_name}" "index_${test_no}.json"
     read -p "next test?" tmp
   else
     echo arg error
