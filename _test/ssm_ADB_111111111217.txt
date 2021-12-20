@@ -1,1 +1,7 @@
-aaaaa
+{
+    "project": "testagile",
+    "team": "testagile Team",
+    "title": "AWS障害テスト",
+    "type": "bug",
+    "tags": "aws; alarm;"
+}aaaaa

@@ -1,12 +1,5 @@
-{
-  "Records": [
-    {
-      "Sns": {
-        "Timestamp": "2020-10-10",
-        "TopicArn": "arn:aws:sns:ap-northeast-1:${AWSID}:test",
-        "Message": "msg siem test01",
-        "Subject": "sbj siem test01"
-      }
-    }
-  ]
-}
+{"SNSTopicArn": "arn:aws:sns:ap-northeast-1:${AWSID}:test",
+  "detail":{"findings": [{
+    "Title": "title 10","Description": "msg test10","Severity": { "Label": "HIGH"},
+  "ProductFields": {"aws/securityhub/ProductName": "pro"},
+  "Resources": [{"Id": "A1"},{"Id": "B2"}]}]}}
