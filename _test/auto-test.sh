@@ -35,7 +35,7 @@ function test_lambda_func () {
     echo "-----"
     aws lambda update-function-configuration --function-name "${func_name}" \
       --environment "$(cat ${envfilepath})" >/dev/null
-    aws lambda publish-version --function-name "${func_name}" >/dev/null
+    # aws lambda publish-version --function-name "${func_name}" >/dev/null
     echo sleep 60
     sleep 60
   fi
@@ -67,7 +67,7 @@ function test_lambda_func () {
     org_env_file="${TESTDIR}/org_env_${func_name}.json"
     aws lambda update-function-configuration --function-name "${func_name}" \
       --environment "$(cat ${org_env_file})" >/dev/null
-    aws lambda publish-version --function-name "${func_name}" >/dev/null
+    # aws lambda publish-version --function-name "${func_name}" >/dev/null
     echo sleep 60
     sleep 60
   fi
