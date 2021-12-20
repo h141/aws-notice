@@ -35,6 +35,7 @@ function test_lambda_func () {
     echo "-----"
     aws lambda update-function-configuration --function-name "${func_name}" \
       --environment "$(cat ${envfilepath})" >/dev/null
+    aws lambda publish-version --function-name "${func_name}" >/dev/null
   fi
   json=$(eval echo $(cat ${filepath}| sed 's/\\/\\\\/g'| sed 's/"/\\"/g'| tr -d "\n"))
   echo test ${func_name} ${filepath}
@@ -59,10 +60,13 @@ function test_lambda_func () {
     status_alarm=$( aws cloudwatch describe-alarms --alarm-names cwalarm-for-${func_name}-errors \
       | jq -r .MetricAlarms[].StateValue)
   done
-  echo reload environment
-  org_env_file="${TESTDIR}/org_env_${func_name}.json"
-  aws lambda update-function-configuration --function-name "${func_name}" \
-    --environment "$(cat ${org_env_file})" >/dev/null
+  if [ -f ${envfilepath} ]; then
+    echo reload environment
+    org_env_file="${TESTDIR}/org_env_${func_name}.json"
+    aws lambda update-function-configuration --function-name "${func_name}" \
+      --environment "$(cat ${org_env_file})" >/dev/null
+    aws lambda publish-version --function-name "${func_name}" >/dev/null
+  fi
 }
 # --
 test_type=$2
