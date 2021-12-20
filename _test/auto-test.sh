@@ -81,8 +81,8 @@ for ssmfile in ${prfix_ssm}_*.txt ;do
   ssm_name=$(echo ${ssmfile} | sed "s/${prfix_ssm}_//g" | sed "s/.txt//g")
   ssm_value=$(cat ${ssmfile} | tr -d "\r" | tr -d "\n")
   echo create ${ssm_name}
-  echo aws ssm put-parameter --name "${ssm_name}" --value "${ssm_value}"
-  aws ssm put-parameter --name "${ssm_name}" --value "${ssm_value}"
+  echo aws ssm put-parameter --type String --name "${ssm_name}" --value "${ssm_value}"
+  aws ssm put-parameter --type String  --name "${ssm_name}" --value "${ssm_value}"
 done
 exit
 echo ========================================
