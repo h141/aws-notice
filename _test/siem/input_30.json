@@ -1,0 +1,2 @@
+{"Records": [{"Sns":{"TopicArn": "arn:aws:sns:${AWS_REGION}:${AWSID}:test",
+  "Subject": "sbj siem test30","Message": "msg siem test30\n- Severity: 70"}}]}

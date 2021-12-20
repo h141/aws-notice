@@ -1,0 +1,5 @@
+{"time": "2020-09-15T18:27:03Z",
+  "detail":{"findings": [{
+    "Title": "title 11","Description": "msg test11","Severity": { "Label": "HIGH"},
+  "ProductFields": {"aws/securityhub/ProductName": "pro"},
+  "Resources": [{"Id": "A1"},{"Id": "B2"}]}]}}
