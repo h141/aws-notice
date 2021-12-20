@@ -12,8 +12,6 @@ for ssmfile in ${prfix_ssm}_*.txt ;do
   echo aws ssm put-parameter --type String --name "${ssm_name}" --value "${ssm_value}"
   aws ssm put-parameter --type String  --name "${ssm_name}" --value "${ssm_value}"
 done
-exit
-
 cd ${TESTDIR}
 # =====================================================
 TMPFILE=$(mktemp)
