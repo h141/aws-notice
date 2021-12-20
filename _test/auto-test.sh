@@ -8,7 +8,7 @@ prfix_ssm=ssm
 for ssmfile in ${prfix_ssm}_*.txt ;do
   ssm_name=$(echo ${ssmfile} | sed "s/${prfix_ssm}_//g" | sed "s/.txt//g")
   aws ssm get-parameter --name ${ssm_name} >/dev/null 2>&1
-  if [ $? != 0 ]; then
+  if [ "$?" != "0" ]; then
     ssm_value=$(cat ${ssmfile} | tr -d "\r" | tr -d "\n")
     echo create ${ssm_name}
     aws ssm put-parameter --type String  --name "${ssm_name}" --value "${ssm_value}"
