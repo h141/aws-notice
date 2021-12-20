@@ -3,6 +3,7 @@ TESTDIR=$(cd $(dirname $0); pwd)
 cd ${TESTDIR}
 # --
 echo ========================================
+echo SSM setup
 cd ${TESTDIR}/_ssm/
 prfix_ssm=ssm
 for ssmfile in ${prfix_ssm}_*.txt ;do
@@ -49,19 +50,19 @@ function test_lambda_func () {
   echo
   echo ========================================
   # wait status change
-  echo sleep 60
-  sleep 60
+  echo sleep 30
+  sleep 30
   status_alarm="_"
   while [ $status_alarm != "OK" ]; do
-    echo sleep 60 now status ${status_alarm} 
-    sleep 60
+    echo sleep 30 now status ${status_alarm} 
+    sleep 30
     status_alarm=$( aws cloudwatch describe-alarms --alarm-names cwalarm-for-${func_name}-errors \
       | jq -r .MetricAlarms[].StateValue)
   done
   echo reload environment
   org_env_file="${TESTDIR}/org_env_${func_name}.json"
   aws lambda update-function-configuration --function-name "${func_name}" \
-    --environment "$(cat ${org_env_file})"
+    --environment "$(cat ${org_env_file})" >/dev/null
 }
 # --
 test_type=$2
