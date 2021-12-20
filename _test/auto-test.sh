@@ -78,10 +78,11 @@ function test_type_lambda_funcs () {
   # --
   func_name="${funcs[$tmp_type]}"
   # --
+  cd ${TESTDIR}/$tmp_type/
   for inputfile in input_[0-9][0-9].json ;do
     echo "inputfile ${inputfile}"
     echo "-----"
-    test_lambda_func "${func_name}" "${inputfile}"
+    test_lambda_func "${func_name}" "${TESTDIR}/$tmp_type/${inputfile}"
   done
   echo "environment ${func_name}"
   echo "-----"
@@ -109,7 +110,7 @@ else
   if [ "_$test_no" == "_" -a "_$func_name" != "_" ];then
     test_type_lambda_funcs ${test_type}
   elif [ "_$test_no" != "_" -a "_$func_name" != "_" ];then
-    test_lambda_func "${func_name}" "index_${test_no}.json"
+    test_lambda_func "${func_name}" "${TESTDIR}/$test_type/index_${test_no}.json"
     read -p "next test?" tmp
   else
     echo arg error
