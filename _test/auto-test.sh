@@ -36,6 +36,8 @@ function test_lambda_func () {
     aws lambda update-function-configuration --function-name "${func_name}" \
       --environment "$(cat ${envfilepath})" >/dev/null
     aws lambda publish-version --function-name "${func_name}" >/dev/null
+    echo sleep 60
+    sleep 60
   fi
   json=$(eval echo $(cat ${filepath}| sed 's/\\/\\\\/g'| sed 's/"/\\"/g'| tr -d "\n"))
   echo test ${func_name} ${filepath}
@@ -66,6 +68,8 @@ function test_lambda_func () {
     aws lambda update-function-configuration --function-name "${func_name}" \
       --environment "$(cat ${org_env_file})" >/dev/null
     aws lambda publish-version --function-name "${func_name}" >/dev/null
+    echo sleep 60
+    sleep 60
   fi
 }
 # --
