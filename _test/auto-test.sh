@@ -78,7 +78,6 @@ function test_type_lambda_funcs () {
   # --
   func_name="${funcs[$tmp_type]}"
   # --
-  cd ${TESTDIR}/${tmp_type}/
   for inputfile in input_[0-9][0-9].json ;do
     echo "inputfile ${inputfile}"
     echo "-----"
@@ -101,9 +100,11 @@ done
 # ---
 if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
   for tmp_type in siem sns board connect ;do
+    cd ${TESTDIR}/$tmp_type/
     test_type_lambda_funcs ${tmp_type}
   done
 else
+  cd ${TESTDIR}/$test_type/
   func_name="${funcs[$test_type]}"
   if [ "_$test_no" == "_" -a "_$func_name" != "_" ];then
     test_type_lambda_funcs ${test_type}
