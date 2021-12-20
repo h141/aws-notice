@@ -22,9 +22,6 @@ AWSID=$(aws sts get-caller-identity|jq -r .Account)
 function test_lambda_func () {
   funcname=$1
   filepath=$2
-  org_env_file="${TESTDIR}/org_env_${funcname}.json"
-  aws lambda get-function-configuration --function-name "${funcname}" | \
-    jq -r .Environment >"${org_env_file}"
   # --
   envfilepath=$(echo ${filepath}| sed 's/\.json/_env\.json/g')
   if [ -f ${envfilepath} ]; then
@@ -49,9 +46,6 @@ function test_lambda_func () {
   cat "${TMPFILE}"
   echo
   echo ========================================
-  aws lambda update-function-configuration --function-name "${funcname}" \
-    --environment "$(cat ${org_env_file})"
-  echo ${status_alarm}
   # wait status change
   status_alarm="_"
   while [ $status_alarm != "OK" ]; do
@@ -73,6 +67,10 @@ declare -A funcs=(
 function test_type_lambda_funcs () {
   tmp_type=$1
   # --
+  org_env_file="${TESTDIR}/org_env_${funcname}.json"
+  aws lambda get-function-configuration --function-name "${funcname}" | \
+    jq -r .Environment >"${org_env_file}"
+
   cd ${TESTDIR}/${tmp_type}/
   func_name="${funcs[$tmp_type]}"
   for inputfile in input_[0-9][0-9].json ;do
@@ -83,6 +81,12 @@ function test_type_lambda_funcs () {
   echo "environment ${func_name}"
   echo "-----"
   aws lambda get-function-configuration --function-name "${func_name}"
+  # ---
+  echo sleep 60
+  sleep 60
+  aws lambda update-function-configuration --function-name "${funcname}" \
+    --environment "$(cat ${org_env_file})"
+  echo ${status_alarm}
 }
 echo ========================================
 if [ "_$test_type" == "_" -o "$test_type" == "all" ];then
