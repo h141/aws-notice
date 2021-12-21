@@ -1,2 +1,5 @@
 {"time": "2020-09-15T18:27:03Z","SNSTopicArn": "arn:aws:sns:ap-northeast-1:${AWSID}:test",
-  "detail":{}}
+  "detail":{"findings": [{
+    "Title": "title 13","Description": "msg test13",
+  "ProductFields": {"aws/securityhub/ProductName": "pro"},
+  "Resources": [{"Id": "A1"},{"Id": "B2"}]}]}}

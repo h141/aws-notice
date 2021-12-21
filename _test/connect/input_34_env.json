@@ -1,6 +1,7 @@
 {"Variables": {
-  "CALLTIMES": "",
+  "CALLTIMES": 3,
   "MESSAGE": "AWS障害です",
-  "STATEMACHINE": "shub-stepfunctions-connect-phone-sm",
-  "WAITSECONDS": 300
+  "STATEMACHINE": "shub-stepfunctions-connect-phone-sm"
 }}
+
+

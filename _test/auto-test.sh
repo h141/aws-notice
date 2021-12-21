@@ -53,9 +53,17 @@ function test_lambda_func () {
   echo
   echo ========================================
   # wait status change
-  echo sleep 30
-  sleep 30
-  status_alarm="_"
+  cat "${TMPFILE}"|grep errorMessage >/dev/null
+  if [ "$?" == "0" ]; then
+    echo sleep 180 
+    sleep 180
+    while [ $status_alarm != "OK" ]; do
+      echo wait alert sleep 60 now status ${status_alarm} 
+      sleep 60
+      status_alarm=$( aws cloudwatch describe-alarms --alarm-names cwalarm-for-${func_name}-errors \
+        | jq -r .MetricAlarms[].StateValue)
+    done
+  fi
   while [ $status_alarm != "OK" ]; do
     echo sleep 30 now status ${status_alarm} 
     sleep 30
