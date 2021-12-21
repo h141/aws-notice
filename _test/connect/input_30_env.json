@@ -1,7 +1,7 @@
 {"Variables": {
-  "CALLTIMES": 3,
+  "CALLTIMES": "3",
   "MESSAGE": "AWS障害です",
   "STATEMACHINE": "",
-  "WAITSECONDS": 300
+  "WAITSECONDS": "300"
 }}
 

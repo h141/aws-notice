@@ -1,6 +1,6 @@
 {"Variables": {
-  "CALLTIMES": 3,
+  "CALLTIMES": "3",
   "STATEMACHINE": "shub-stepfunctions-connect-phone-sm",
-  "WAITSECONDS": 300
+  "WAITSECONDS": "300"
 }}
 

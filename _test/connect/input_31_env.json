@@ -1,5 +1,5 @@
 {"Variables": {
-  "CALLTIMES": 3,
+  "CALLTIMES": "3",
   "MESSAGE": "AWS障害です",
-  "WAITSECONDS": 300
+  "WAITSECONDS": "300"
 }}
