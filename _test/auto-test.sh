@@ -57,6 +57,7 @@ function test_lambda_func () {
   if [ "$?" == "0" ]; then
     echo sleep 180 
     sleep 180
+    status_alarm="_" 
     while [ $status_alarm != "OK" ]; do
       echo wait alert sleep 60 now status ${status_alarm} 
       sleep 60
