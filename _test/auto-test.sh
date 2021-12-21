@@ -63,13 +63,15 @@ function test_lambda_func () {
       status_alarm=$( aws cloudwatch describe-alarms --alarm-names cwalarm-for-${func_name}-errors \
         | jq -r .MetricAlarms[].StateValue)
     done
+  else
+    status_alarm="_" 
+    while [ $status_alarm != "OK" ]; do
+      echo sleep 30 now status ${status_alarm} 
+      sleep 30
+      status_alarm=$( aws cloudwatch describe-alarms --alarm-names cwalarm-for-${func_name}-errors \
+        | jq -r .MetricAlarms[].StateValue)
+    done
   fi
-  while [ $status_alarm != "OK" ]; do
-    echo sleep 30 now status ${status_alarm} 
-    sleep 30
-    status_alarm=$( aws cloudwatch describe-alarms --alarm-names cwalarm-for-${func_name}-errors \
-      | jq -r .MetricAlarms[].StateValue)
-  done
   if [ -f ${envfilepath} ]; then
     echo reload environment
     org_env_file="${TESTDIR}/org_env_${func_name}.json"
