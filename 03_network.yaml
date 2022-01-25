@@ -18,7 +18,6 @@ Metadata:
           - vSys2Name
           - vSubSys201Name
           - vSubSys202Name
-          - vVpc2CIDR
           - vSbn201aCIDR
           - vSbn201cCIDR
           - vSbn202aCIDR
@@ -44,10 +43,6 @@ Parameters:
     Type: String
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3})/(\\d{1,2})"
     Default: 192.168.0.0/24
-  vVpc2CIDR:
-    Type: String
-    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3})/(\\d{1,2})"
-    Default: 192.168.1.0/24
   # --
   vSbn101aCIDR:
     Type: String
@@ -111,15 +106,7 @@ Resources:
         - Key: Name
           Value: !Sub "${vSys1Name}-vpc"
   # -- vpc2 ----------------------------------------------------------------------
-  VPC2forLambdaNAT:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: !Ref vVpc2CIDR
-      EnableDnsSupport: true
-      EnableDnsHostnames: false
-      Tags:
-        - Key: Name
-          Value: !Sub "${vSys2Name}-vpc"
+  # external VPC2forLambdaNATID
   # ===========================================================================
   # Subnet
   # ===========================================================================
@@ -167,7 +154,7 @@ Resources:
   Subnet02Private01a:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       AvailabilityZone: !Ref vAZa
       CidrBlock:  !Ref vSbn201aCIDR
       MapPublicIpOnLaunch: false
@@ -177,7 +164,7 @@ Resources:
   Subnet02Private01c:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       AvailabilityZone: !Ref vAZc
       CidrBlock:  !Ref vSbn201cCIDR
       MapPublicIpOnLaunch: false
@@ -187,7 +174,7 @@ Resources:
   Subnet02Private02a:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       AvailabilityZone: !Ref vAZa
       CidrBlock:  !Ref vSbn202aCIDR
       MapPublicIpOnLaunch: false
@@ -197,7 +184,7 @@ Resources:
   Subnet02Private02c:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       AvailabilityZone: !Ref vAZc
       CidrBlock:  !Ref vSbn202cCIDR
       MapPublicIpOnLaunch: false
@@ -207,7 +194,7 @@ Resources:
   Subnet02PUBa:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       AvailabilityZone: !Ref vAZa
       CidrBlock:  !Ref vSbn2PUBaCIDR
       MapPublicIpOnLaunch: false
@@ -217,7 +204,7 @@ Resources:
   Subnet02PUBc:
     Type: AWS::EC2::Subnet
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       AvailabilityZone: !Ref vAZc
       CidrBlock:  !Ref vSbn2PUBcCIDR
       MapPublicIpOnLaunch: false
@@ -332,7 +319,7 @@ Resources:
     Properties:
       GroupName: !Sub "${vSys2Name}-sg-for-lambda-to-${vSubSys201Name}"
       GroupDescription: !Sub "${vSys2Name}-sg-for-lambda-to-${vSubSys201Name}"
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       Tags:
         - Key: Name
           Value: !Sub "${vSys2Name}-sg-for-lambda-to-${vSubSys201Name}"
@@ -362,7 +349,7 @@ Resources:
     Properties:
       GroupName: !Sub "${vSys2Name}-sg-for-lambda-to-${vSubSys202Name}"
       GroupDescription: !Sub "${vSys2Name}-sg-for-lambda-to-${vSubSys202Name}"
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       Tags:
         - Key: Name
           Value: !Sub "${vSys2Name}-sg-for-lambda-to-${vSubSys202Name}"
@@ -399,7 +386,7 @@ Resources:
   IGWAttachVPCforNAT:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       InternetGatewayId: !Ref InternetGatewayforNAT
   # ===========================================================================
   # Elastic IP Address vpc2
@@ -430,7 +417,7 @@ Resources:
   RouteTable201:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       Tags:
         - Key: Name
           Value: !Sub "${vSys2Name}-pri-${vSubSys201Name}-routetable"
@@ -454,7 +441,7 @@ Resources:
   RouteTable202:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       Tags:
         - Key: Name
           Value: !Sub "${vSys2Name}-pri-${vSubSys202Name}-routetable"
@@ -478,7 +465,7 @@ Resources:
   RouteTablePUB:
     Type: AWS::EC2::RouteTable
     Properties:
-      VpcId: !Ref VPC2forLambdaNAT
+      VpcId: !ImportValue VPC2forLambdaNATID
       Tags:
         - Key: Name
           Value: !Sub "${vSys2Name}-pub-routetable"
@@ -655,12 +642,6 @@ Outputs:
   VpcEndpointStepfunctionsName:
     Value: !Sub "${vSys1Name}-vpce-stepfunctions"
   # -- vpc2 ----------------------------------------------------------------------
-  VPC2forLambdaNATID:
-    Description: VPC 2 ID
-    Value: !Ref VPC2forLambdaNAT
-    Export:
-      Name: VPC2forLambdaNATID
-  # --
   Subnet02Private01aID:
     Description: VPC 2 Private Subnet 1a ID
     Value: !Ref Subnet02Private01a

@@ -37,6 +37,10 @@ echo START 00_sns_infra_alert.sh
 . 00_sns_infra_alert.sh
 echo END
 echo
+echo START 00_create_vpc_nat.sh
+. 00_create_vpc_nat.sh
+echo END
+echo
 echo START 01_connect.sh
 . 01_connect.sh
 echo END
