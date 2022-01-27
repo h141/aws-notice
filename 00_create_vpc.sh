@@ -37,6 +37,7 @@ else
   read -p "Interrupt? [y]" interrupt
   interrupt="${interrupt:=y}"
   if [ $interrupt == "y" -o $interrupt == "Y" ]; then
+    aws cloudformation describe-stacks --stack-name $stackname | jq -r '.Stacks[].Outputs[] | .OutputKey + "    " + .OutputValue'
     exit
   fi
 fi
