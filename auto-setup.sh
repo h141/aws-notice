@@ -25,8 +25,12 @@ if [ $? -eq 0 ]; then
   hash -r
 fi
 echo SET environment variables for REGION
-export AWS_DEFAULT_REGION=ap-northeast-1
-export AWS_REGION=ap-northeast-1
+if [ -z ${AWS_REGION} ]; then
+  read -p "Enter AWS_REGION [ap-northeast-1]:" region
+  region="${region:=ap-northeast-1}"
+  export AWS_REGION=${region}
+  export AWS_DEFAULT_REGION=${region}
+fi
 echo cd HOMEDIR
 cd ~
 # -------------------------------------
