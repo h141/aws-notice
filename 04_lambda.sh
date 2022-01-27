@@ -91,7 +91,7 @@ else
   # ------------------------------------- SNS ---
   # ParameterKey=vSSMSNSdefault,ParameterValue='${sns_default}'
   if [ -z "${sns_default+UNDEF}" ]; then
-    topics=$(aws sns list-topics | jq -r '.Topics[].TopicArn'|cut --d : --f 6)
+    topics=$(aws sns list-topics | jq -r '.Topics[].TopicArn'|cut --d : --f 6 | grep -v "^${sns_infra_alert_name}$" )
     echo Please, select an sns_default to notify.
     select sns_default in ${topics}
     do break ; done 

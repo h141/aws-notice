@@ -34,9 +34,9 @@ else
   # ---
   echo "Do you want to interrupt it?"
   echo "If you start this script again, the previous process will continue."
-  read -p "Interrupt? [Y]" interrupt
-  interrupt="${interrupt:=Y}"
-  if [ $interrupt == "Y" ]; then
+  read -p "Interrupt? [y]" interrupt
+  interrupt="${interrupt:=y}"
+  if [ $interrupt == "y" -o $interrupt == "Y" ]; then
     exit
   fi
 fi
