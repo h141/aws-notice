@@ -1,6 +1,6 @@
 #!/bin/bash
 PYTHONIOENCODING=UTF-8
-stackname="stack-shub-alert-vpc-nat"
+stackname="stack-shub-alert-vpc"
 PYTHONIOENCODING=UTF-8
 status=$(aws cloudformation describe-stacks --stack-name $stackname 2>/dev/null | jq -r .Stacks[].StackStatus)
 if [ "${status}" == "CREATE_COMPLETE" ]; then
@@ -10,7 +10,7 @@ elif [ -n "${status}" ]; then
     printf '\033[31m%s\033[m\n' "Forced Termination. Delete Stack $stackname."
     exit 
 else
-  template_file="file://./00_create_vpc_nat.yaml"
+  template_file="file://./00_create_vpc.yaml"
   aws cloudformation create-stack --stack-name $stackname \
     --template-body $template_file \
     --enable-termination-protection \
@@ -25,7 +25,7 @@ else
     status=$(aws cloudformation describe-stacks --stack-name $stackname | jq -r .Stacks[].StackStatus)
     echo Now CloudFormation Stack Status $status
   done
-  if [ $status != "CREATE_COMPLETE" ]; then
+  if [ "x$status" != "xCREATE_COMPLETE" ]; then
     echo "ERROR  CloudFormation Stack Status $status"
     printf '\033[31m%s\033[m\n' "Forced Termination"
     exit 

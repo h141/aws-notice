@@ -29,7 +29,7 @@ else
     status=$(aws cloudformation describe-stacks --stack-name $stackname | jq -r .Stacks[].StackStatus)
     echo Now CloudFormation Stack Status $status
   done
-  if [ $status != "CREATE_COMPLETE" ]; then
+  if [ "x$status" != "xCREATE_COMPLETE" ]; then
     echo "ERROR  CloudFormation Stack Status $status"
     printf '\033[31m%s\033[m\n' "Forced Termination"
     exit 

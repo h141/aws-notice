@@ -29,7 +29,9 @@ if [ -z ${AWS_REGION} ]; then
   read -p "Enter AWS_REGION [ap-northeast-1]:" region
   region="${region:=ap-northeast-1}"
   export AWS_REGION=${region}
-  export AWS_DEFAULT_REGION=${region}
+fi
+if [ -z ${AWS_DEFAULT_REGION} ]; then
+  export AWS_DEFAULT_REGION=${AWS_REGION}
 fi
 echo cd HOMEDIR
 cd ~
