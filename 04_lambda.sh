@@ -56,7 +56,7 @@ else
   # --------------------------------
   # ParameterKey=vS3bucketName,ParameterValue='${cfbucket}'
   # search S3 bucket for CFn template
-  cfbucket=$(aws s3 ls|grep cdktoolkit-.*|cut -d " " -f 3|head -1)
+  cfbucket=$(aws s3 ls|grep "cdktoolkit-.*\|cf-templates-.*-${AWS_REGION}"|cut -d " " -f 3|head -1)
   # cfbucket=$(aws s3 ls|grep cf-templates-.*-${AWS_REGION}|cut -d " " -f 3|head -1)
   echo vS3bucketName: ${cfbucket}
   echo
