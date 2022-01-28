@@ -15,7 +15,9 @@ if [ $? -ne 0 ]; then
 fi
 echo CHECK aws version
 aws --version | grep "^aws-cli/1\."
-if [ $? -eq 0 ]; then
+awschkstatus=$?
+echo awschkstatus $awschkstatus
+if [ $awschkstatus -eq 0 ]; then
   sudo rm -rf /usr/local/aws
   sudo rm /usr/bin/aws
   sudo rm /usr/bin/aws_completer
@@ -24,15 +26,21 @@ if [ $? -eq 0 ]; then
   sudo ./aws/install
   hash -r
 fi
-echo SET environment variables for REGION
+echo CHECK env AWS_REGION
 if [ -z ${AWS_REGION} ]; then
   read -p "Enter AWS_REGION [ap-northeast-1]:" region
   region="${region:=ap-northeast-1}"
+  echo export AWS_REGION=${region} >>~/.bashrc
   export AWS_REGION=${region}
+  echo export AWS_REGION=${region}
 fi
+echo CHECK env AWS_DEFAULT_REGION
 if [ -z ${AWS_DEFAULT_REGION} ]; then
+  echo export AWS_DEFAULT_REGION=${AWS_REGION} >>~/.bashrc
   export AWS_DEFAULT_REGION=${AWS_REGION}
+  echo export AWS_DEFAULT_REGION=${AWS_REGION}
 fi
+. ~/.bashrc
 echo cd HOMEDIR
 cd ~
 # -------------------------------------
