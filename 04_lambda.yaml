@@ -35,6 +35,7 @@ Metadata:
           - vConnectFlowName
           - vConnectSourcePhoneNumber
           - vSNSInfraAlert
+          - vSiemSNSTopicName
 # -------------------------------------
 Parameters:
   vS3bucketName:
@@ -72,6 +73,9 @@ Parameters:
     Type: String
   vSNSInfraAlert:
     Type: String
+  vSiemSNSTopicName:
+    Type: String
+    Default: aes-siem-alert
 # -------------------------------------
 Resources:
   # ===========================================================================
@@ -722,7 +726,7 @@ Resources:
                 - "HIGH"
       Targets:
         - Arn: !GetAtt Lambdafnc02sns.Arn
-          Id: "Id2021120808510"
+          Id: "Id20211208Lambdafnc02sns"
   EventRuleLambdafnc03board:
     Type: "AWS::Events::Rule"
     Properties:
@@ -746,7 +750,7 @@ Resources:
                 - "HIGH"
       Targets:
         - Arn: !GetAtt Lambdafnc03board.Arn
-          Id: "Id2021120808510"
+          Id: "Id20211208Lambdafnc03board"
   EventRuleLambdafnc04connect:
     Type: "AWS::Events::Rule"
     Properties:
@@ -769,5 +773,41 @@ Resources:
                 - "CRITICAL"
       Targets:
         - Arn: !GetAtt Lambdafnc04connect.Arn
-          Id: "Id2021120808510"
+          Id: "Id20211208Lambdafnc04connect"
+  # -------------------------------------- SNS Subscription Trigger --
+  SNSSubscriptionSiemAlert:
+    Type: AWS::SNS::Subscription
+    Properties:
+      Endpoint: !GetAtt Lambdafnc01siem.Arn
+      Protocol: lambda
+      TopicArn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${vSiemSNSTopicName}"
+  # -------------------------------------- Trigger --
+  LambdaEventLambdafnc01siem:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref Lambdafnc01siem
+      Principal: 'sns.amazonaws.com'
+      SourceArn: !Sub "arn:aws:sns:${AWS::Region}:${AWS::AccountId}:${vSiemSNSTopicName}"
+  LambdaEventLambdafnc02sns:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref Lambdafnc02sns
+      Principal: 'events.amazonaws.com'
+      SourceArn: !GetAtt EventRuleLambdafnc02sns.Arn
+  LambdaEventLambdafnc03board:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref Lambdafnc03board
+      Principal: 'events.amazonaws.com'
+      SourceArn: !GetAtt EventRuleLambdafnc03board.Arn
+  LambdaEventLambdafnc04connect:
+    Type: 'AWS::Lambda::Permission'
+    Properties:
+      Action: 'lambda:InvokeFunction'
+      FunctionName: !Ref Lambdafnc04connect
+      Principal: 'events.amazonaws.com'
+      SourceArn: !GetAtt EventRuleLambdafnc04connect.Arn
 

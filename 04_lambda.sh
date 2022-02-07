@@ -173,6 +173,20 @@ else
   aws s3 cp $smfilepath s3://${cfbucket}/statemachine/
   echo
   # ------------------------------------------
+  # ParameterKey=vSiemSNSTopicName,ParameterValue='${siem_notify_snstopic_name}'
+  if [ -z "${siem_notify_snstopic_name+UNDEF}" ]; then
+    echo
+    read -p "Enter SNStopicName for Siem Notify Mail[aes-siem-alert]:" siem_notify_snstopic_name
+    siem_notify_snstopic_name="${siem_notify_snstopic_name:=aes-siem-alert}"
+    echo "siem_notify_snstopic_name=\"${siem_notify_snstopic_name}\"" >> "$conconf_path"
+  fi
+  aws sns list-topics | jq -r '.Topics[].TopicArn'|cut --d : --f 6|grep "^${siem_notify_snstopic_name}$" >/dev/null
+  rtn_siem_notify_snstopic=$?
+  if [ ${rtn_siem_notify_snstopic} != 0 ]; then
+    echo "ERROR siem_notify SNS topic \"${sns_infra_alert_name}\" does not exist."
+    exit
+  fi
+  # ------------------------------------------
   template_file="file://./04_lambda.yaml"
   # --
   # adb_default=$(echo $adb_default | sed 's/ /\\ /g')
@@ -197,7 +211,9 @@ else
     "ParameterKey=vConnectFlowName,ParameterValue='${flowname}'" \
     "ParameterKey=vConnectSourcePhoneNumber,ParameterValue='${phonenumber}'" \
     "ParameterKey=vSSMADBdefault,ParameterValue='${adb_default}'" \
-    "ParameterKey=vSNSInfraAlert,ParameterValue='${sns_infra_alert}'"
+    "ParameterKey=vSNSInfraAlert,ParameterValue='${sns_infra_alert}'" \
+    "ParameterKey=vSiemSNSTopicName,ParameterValue='${siem_notify_snstopic_name}'"
+
   { set +x; } 2>/dev/null
   # -------------------------------------
   # wait status change
