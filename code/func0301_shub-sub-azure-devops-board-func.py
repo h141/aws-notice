@@ -106,6 +106,8 @@ def parse_finding( accountname, time, finding ):
     title = finding.get('Title','')
     description = finding.get('Description','')
     resources = finding.get('Resources',[])
+    remdiation_txt = finding.get('Remediation',{}).get('Recommendation',{}).get('Text','')
+    remdiation_url = finding.get('Remediation',{}).get('Recommendation',{}).get('Url','')
     # ---
     texts = [
         # Top
@@ -126,4 +128,8 @@ def parse_finding( accountname, time, finding ):
     # Description
     texts.append( " - Description ::  -- " )
     texts.append( description )
+    # Remediation Recommendation
+    texts.append( " ■ Remediation Recommendation" )
+    texts.append( remdiation_txt )
+    texts.append( remdiation_url )
     return "\n".join(texts)
