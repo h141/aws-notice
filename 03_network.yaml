@@ -17,10 +17,13 @@ Metadata:
           - vSys2Name
           - vSubSys201Name
           - vSubSys202Name
+          - vSubSys203Name
           - vSbn201aCIDR
           - vSbn201cCIDR
           - vSbn202aCIDR
           - vSbn202cCIDR
+          - vSbn203aCIDR
+          - vSbn203cCIDR
           - vSbn2PUBaCIDR
           - vSbn2PUBcCIDR
 # -------------------------------------
@@ -62,6 +65,9 @@ Parameters:
   vSubSys202Name:
     Type: String
     Default: azdo
+  vSubSys203Name:
+    Type: String
+    Default: work
   vSbn201aCIDR:
     Type: String
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3})/(\\d{1,2})"
@@ -78,6 +84,14 @@ Parameters:
     Type: String
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3})/(\\d{1,2})"
     Default: 192.168.1.96/27
+  vSbn203aCIDR:
+    Type: String
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3})/(\\d{1,2})"
+    Default: 192.168.1.128/28
+  vSbn203cCIDR:
+    Type: String
+    AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3})/(\\d{1,2})"
+    Default: 192.168.1.144/28
   vSbn2PUBaCIDR:
     Type: String
     AllowedPattern: "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3})/(\\d{1,2})"
@@ -179,6 +193,26 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub "${vSys2Name}-pri-${vSubSys202Name}-subnet-1a"
+  Subnet02Private03a:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !ImportValue VPC2forLambdaNATID
+      AvailabilityZone: !Ref vAZa
+      CidrBlock:  !Ref vSbn203aCIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub "${vSys2Name}-pri-${vSubSys203Name}-subnet-1a"
+  Subnet02Private03c:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !ImportValue VPC2forLambdaNATID
+      AvailabilityZone: !Ref vAZc
+      CidrBlock:  !Ref vSbn203cCIDR
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub "${vSys2Name}-pri-${vSubSys203Name}-subnet-1a"
   Subnet02PUBa:
     Type: AWS::EC2::Subnet
     Properties:
@@ -374,6 +408,21 @@ Resources:
           ToPort: 443
           CidrIp: 13.107.43.0/24
           Description: MS DevOps
+  SGEC2VPC2ForWork:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub "${vSys2Name}-sg-for-ec2-to-${vSubSys203Name}"
+      GroupDescription: !Sub "${vSys2Name}-sg-for-lambda-to-${vSubSys203Name}"
+      VpcId: !ImportValue VPC2forLambdaNATID
+      Tags:
+        - Key: Name
+          Value: !Sub "${vSys2Name}-sg-for-ec2-to-${vSubSys203Name}"
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+          Description: AWS SSM HTTPS GitHub
   # ===========================================================================
   # Internet Gateway vpc2
   # ===========================================================================
@@ -461,6 +510,30 @@ Resources:
     Properties:
       RouteTableId: !Ref RouteTable202
       SubnetId: !Ref Subnet02Private02c
+  # --
+  RouteTable203:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !ImportValue VPC2forLambdaNATID
+      Tags:
+        - Key: Name
+          Value: !Sub "${vSys2Name}-pri-${vSubSys203Name}-routetable"
+  Route01onRouteTable203:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref RouteTable203
+      DestinationCidrBlock: 0.0.0.0/0
+      NatGatewayId: !Ref NATGatewayforlambda
+  RouteTableAssociation203a:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable203
+      SubnetId: !Ref Subnet02Private03a
+  RouteTableAssociation203c:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref RouteTable203
+      SubnetId: !Ref Subnet02Private03c
   # --
   RouteTablePUB:
     Type: AWS::EC2::RouteTable
@@ -656,6 +729,16 @@ Outputs:
     Value: !Ref Subnet02Private02c
     Export:
       Name: Subnet02Private02cID
+  Subnet02Private03aID:
+    Description: VPC 2 Private Subnet 3a ID
+    Value: !Ref Subnet02Private03a
+    Export:
+      Name: Subnet02Private03aID
+  Subnet02Private03cID:
+    Description: VPC 2 Private Subnet 3c ID
+    Value: !Ref Subnet02Private03c
+    Export:
+      Name: Subnet02Private03cID
   # --
   SGLambdaVPC2awsconnectID:
     Description: SG for VPC2 Lambda awsconnect
@@ -667,3 +750,8 @@ Outputs:
     Value: !GetAtt SGLambdaVPC2Azuredevopsboard.GroupId
     Export:
       Name: SGLambdaVPC2AzuredevopsboardID
+  SGEC2VPC2ForWorkID:
+    Description: SG for VPC2 EC2 For Work
+    Value: !GetAtt SGEC2VPC2ForWork.GroupId
+    Export:
+      Name: SGEC2VPC2ForWorkID
