@@ -411,18 +411,18 @@ Resources:
   SGEC2VPC2ForWork:
     Type: AWS::EC2::SecurityGroup
     Properties:
-      GroupName: !Sub "${vSys2Name}-sg-for-ec2-to-${vSubSys203Name}"
-      GroupDescription: !Sub "${vSys2Name}-sg-for-lambda-to-${vSubSys203Name}"
+      GroupName: !Sub "${vSys2Name}-sg-for-ec2-for-${vSubSys203Name}"
+      GroupDescription: !Sub "${vSys2Name}-sg-for-ec2-for-${vSubSys203Name}"
       VpcId: !ImportValue VPC2forLambdaNATID
       Tags:
         - Key: Name
-          Value: !Sub "${vSys2Name}-sg-for-ec2-to-${vSubSys203Name}"
+          Value: !Sub "${vSys2Name}-sg-for-ec2-for-${vSubSys203Name}"
       SecurityGroupEgress:
         - IpProtocol: tcp
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
-          Description: AWS SSM HTTPS GitHub
+          Description: AWS SSM CDK  GitHub HTTPS
   # ===========================================================================
   # Internet Gateway vpc2
   # ===========================================================================
